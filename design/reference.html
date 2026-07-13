@@ -1,0 +1,1667 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thuban — IA para Bienes Raíces | Referencia de Diseño v1.0.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================
+   THUBAN — Design Reference v1.0.0
+   Dark theme | Gold accent | Glassmorphism
+   ============================================ */
+
+/* --- Design Tokens --- */
+:root {
+  --black: #0c0c0f;
+  --black-2: #111114;
+  --black-3: #16161a;
+  --border: #1c1c24;
+  --border-light: #2a2a35;
+  --fg: #f0f0f5;
+  --fg-muted: #9898a8;
+  --fg-muted-2: #5c5c6e;
+  --gold: #f59e0b;
+  --gold-light: #fbbf24;
+  --blue: #759ce7;
+  --blue-light: #8bb9f7;
+  --green: #34d399;
+  --red: #f87171;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --hero-pad: 7rem;
+  --section-pad: 6rem;
+  --wrap-pad: 4rem;
+  --content-max: 1200px;
+  --line-height: 1.7;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- Reset --- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--black);
+  color: var(--fg);
+  line-height: var(--line-height);
+  min-height: 100vh;
+}
+::selection { background: rgba(117,156,231,0.2); color: #fff; }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+a { color: inherit; text-decoration: none; }
+
+/* --- Gold Gradient --- */
+.gold-gradient {
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  color: #0a0a12;
+  font-weight: 600;
+}
+.gold-gradient:hover {
+  opacity: 0.95;
+  box-shadow: 0 0 24px rgba(245,158,11,0.2);
+  transform: translateY(-1px);
+}
+
+/* --- Buttons --- */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  color: #0a0a12;
+  font-weight: 600;
+  font-size: 0.938rem;
+  padding: 0.75rem 1.75rem;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s var(--ease-smooth);
+}
+.btn-primary:hover {
+  box-shadow: 0 0 24px rgba(245,158,11,0.25);
+  transform: translateY(-1px);
+}
+.btn-primary:active { transform: translateY(0); }
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: transparent;
+  color: var(--fg);
+  font-weight: 500;
+  font-size: 0.938rem;
+  padding: 0.75rem 1.75rem;
+  border-radius: 10px;
+  border: 1px solid var(--border-light);
+  cursor: pointer;
+  transition: all 0.2s var(--ease-smooth);
+}
+.btn-secondary:hover {
+  border-color: var(--fg-muted);
+  background: rgba(255,255,255,0.03);
+}
+
+/* --- Inputs --- */
+.input {
+  width: 100%;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: 0.938rem;
+  transition: all 0.2s ease;
+}
+.input:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(117,156,231,0.08);
+  outline: none;
+}
+.input::placeholder { color: var(--fg-muted-2); }
+.input-group { position: relative; }
+.input-group .input-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--fg-muted-2);
+}
+
+/* --- Hero Gradient --- */
+.hero-bg {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(245,158,11,0.12), transparent),
+    radial-gradient(ellipse 50% 30% at 20% 80%, rgba(117,156,231,0.08), transparent),
+    var(--black);
+}
+
+/* --- Glass Card --- */
+.glass-card {
+  background: linear-gradient(160deg, rgba(17,17,20,0.85), rgba(22,22,26,0.5));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--radius-md);
+  transition: all 0.25s var(--ease-smooth);
+}
+.glass-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(245,158,11,0.2);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+
+.dashboard-card {
+  background: linear-gradient(160deg, rgba(17,17,20,0.9), rgba(22,22,26,0.6));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+/* --- Animations --- */
+@keyframes twinkle {
+  0%, 100% { opacity: 0.2; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.8); }
+}
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 12px rgba(245,158,11,0.1); }
+  50% { box-shadow: 0 0 24px rgba(245,158,11,0.2); }
+}
+
+/* --- Reveal (Intersection Observer pattern) --- */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s var(--ease-out);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+
+/* --- Star Dot --- */
+.star-dot {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: var(--gold);
+  border-radius: 50%;
+  animation: twinkle 3s ease-in-out infinite;
+}
+
+/* --- Star SVG icon --- */
+.star-icon {
+  display: inline-block;
+  color: var(--gold);
+}
+.star-icon svg {
+  fill: var(--gold);
+  transition: transform 0.2s var(--ease-smooth);
+}
+.star-icon:hover svg { transform: scale(1.1); }
+
+/* --- Header --- */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  transition: all 0.3s ease;
+}
+.header.scrolled {
+  background: rgba(12,12,15,0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(28,28,36,0.8);
+}
+.header-inner {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 0 var(--wrap-pad);
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+.header-logo-icon svg { width: 28px; height: 28px; fill: var(--gold); }
+.header-logo-text {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+.header-nav a {
+  font-size: 0.875rem;
+  color: var(--fg-muted);
+  transition: color 0.2s ease;
+}
+.header-nav a:hover { color: var(--gold); }
+
+/* Mobile nav toggle */
+.nav-toggle {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  color: var(--fg-muted);
+  transition: color 0.2s ease;
+}
+.nav-toggle:hover { color: #fff; }
+.nav-toggle svg { width: 24px; height: 24px; }
+
+/* --- Hero Section --- */
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: calc(7rem + 72px) var(--wrap-pad) 7rem;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+}
+.hero-inner {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  width: 100%;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 1rem;
+  border-radius: 999px;
+  background: rgba(245,158,11,0.1);
+  border: 1px solid rgba(245,158,11,0.2);
+  font-size: 0.813rem;
+  color: var(--gold-light);
+  margin-bottom: 1.5rem;
+}
+.hero-badge svg { width: 16px; height: 16px; }
+
+.hero h1 {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #fff;
+  line-height: 1.1;
+  margin-bottom: 1.25rem;
+}
+.hero h1 span { color: var(--gold); }
+
+.hero p {
+  font-size: clamp(1rem, 1.2vw, 1.25rem);
+  color: var(--fg-muted);
+  max-width: 600px;
+  margin: 0 auto 2.5rem;
+  line-height: var(--line-height);
+}
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+/* Animated stars background */
+.hero-stars { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+
+/* --- Features Section --- */
+.section {
+  padding: var(--section-pad) var(--wrap-pad);
+}
+.section-inner {
+  max-width: var(--content-max);
+  margin: 0 auto;
+}
+.section-header {
+  text-align: center;
+  margin-bottom: 3.5rem;
+}
+.section-header h2 {
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #fff;
+  margin-bottom: 0.75rem;
+}
+.section-header p {
+  font-size: 1rem;
+  color: var(--fg-muted);
+  max-width: 500px;
+  margin: 0 auto;
+  line-height: var(--line-height);
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+}
+
+.feature-card {
+  padding: 1.75rem;
+  display: flex;
+  gap: 1rem;
+}
+.feature-card-icon {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.feature-card-icon svg { width: 24px; height: 24px; }
+.feature-card h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 0.375rem;
+}
+.feature-card p {
+  font-size: 0.875rem;
+  color: var(--fg-muted);
+  line-height: var(--line-height);
+}
+
+/* --- Stats Section --- */
+.stats-section {
+  background: rgba(17,17,20,0.5);
+  border-top: 1px solid rgba(28,28,36,0.5);
+  border-bottom: 1px solid rgba(28,28,36,0.5);
+}
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  text-align: center;
+}
+.stat-item { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; }
+.stat-item-icon svg { width: 32px; height: 32px; color: var(--gold); }
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #fff;
+}
+.stat-label {
+  font-size: 0.875rem;
+  color: var(--fg-muted);
+}
+
+/* --- How It Works Section --- */
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+.step-card {
+  padding: 2rem;
+  text-align: center;
+}
+.step-number {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  color: #0a0a12;
+  font-size: 1.25rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.25rem;
+}
+.step-card h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+.step-card p {
+  font-size: 0.875rem;
+  color: var(--fg-muted);
+  line-height: var(--line-height);
+}
+
+/* --- Auth Section (Login / Signup demo) --- */
+.auth-section {
+  border-top: 1px solid rgba(28,28,36,0.5);
+}
+.auth-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+.auth-card {
+  padding: 2.5rem;
+  text-align: center;
+}
+.auth-card .star-icon-big {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-md);
+  background: rgba(245,158,11,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+}
+.auth-card .star-icon-big svg { width: 28px; height: 28px; fill: var(--gold); color: var(--gold); }
+.auth-card h3 {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.375rem;
+}
+.auth-card > p {
+  font-size: 0.875rem;
+  color: var(--fg-muted);
+  margin-bottom: 1.5rem;
+}
+.auth-form { text-align: left; }
+.auth-form .field { margin-bottom: 1.25rem; }
+.auth-form label {
+  display: block;
+  font-size: 0.813rem;
+  font-weight: 500;
+  color: var(--fg-muted);
+  margin-bottom: 0.375rem;
+}
+.auth-form .input { padding-left: 2.5rem; }
+.auth-form .input-icon { left: 0.75rem; top: 50%; transform: translateY(-50%); position: absolute; }
+.auth-form .field-input { position: relative; }
+.auth-form .btn-primary { width: 100%; }
+.auth-switch {
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: 0.813rem;
+  color: var(--fg-muted-2);
+}
+.auth-switch a { color: var(--blue); font-weight: 500; }
+.auth-switch a:hover { color: var(--blue-light); }
+
+/* --- Dashboard Preview Section --- */
+.dashboard-section {
+  border-top: 1px solid rgba(28,28,36,0.5);
+}
+.dashboard-preview {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 0;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  min-height: 480px;
+}
+.dashboard-sidebar {
+  background: linear-gradient(to bottom, var(--black-2), var(--black));
+  border-right: 1px solid var(--border);
+  padding: 1rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+}
+.dashboard-sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0.75rem;
+}
+.dashboard-sidebar-logo svg { width: 22px; height: 22px; fill: var(--gold); color: var(--gold); }
+.dashboard-sidebar-logo span {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #fff;
+}
+.dashboard-nav { flex: 1; }
+.dashboard-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  color: var(--fg-muted);
+  transition: all 0.2s ease;
+  margin-bottom: 0.125rem;
+  border-left: 3px solid transparent;
+}
+.dashboard-nav-item:hover { color: #fff; background: rgba(255,255,255,0.03); }
+.dashboard-nav-item.active {
+  color: var(--blue);
+  background: rgba(117,156,231,0.08);
+  border-left-color: var(--blue);
+}
+.dashboard-nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+.dashboard-sidebar-user {
+  border-top: 1px solid var(--border);
+  padding-top: 0.75rem;
+}
+.dashboard-credits {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  background: rgba(245,158,11,0.08);
+  border: 1px solid rgba(245,158,11,0.15);
+  margin-bottom: 0.75rem;
+  font-size: 0.75rem;
+  color: var(--gold-light);
+}
+.dashboard-credits svg { width: 14px; height: 14px; }
+.dashboard-user {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.5rem 0.75rem;
+}
+.dashboard-user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #0a0a12;
+  flex-shrink: 0;
+}
+.dashboard-user-info { min-width: 0; }
+.dashboard-user-name {
+  font-size: 0.813rem;
+  font-weight: 500;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dashboard-user-email {
+  font-size: 0.688rem;
+  color: var(--fg-muted-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dashboard-content {
+  padding: 1.5rem;
+  background: var(--black);
+}
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+.dashboard-header h2 {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: #fff;
+}
+.dashboard-header p { font-size: 0.813rem; color: var(--fg-muted); }
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.metric-card {
+  padding: 1.25rem;
+}
+.metric-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+.metric-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  background: rgba(117,156,231,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.metric-icon svg { width: 18px; height: 18px; color: var(--blue); }
+.metric-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.688rem;
+  font-weight: 500;
+}
+.metric-trend.up { background: rgba(52,211,153,0.1); color: var(--green); }
+.metric-trend.down { background: rgba(248,113,113,0.1); color: var(--red); }
+.metric-trend svg { width: 12px; height: 12px; }
+.metric-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.125rem;
+}
+.metric-label { font-size: 0.813rem; color: var(--fg-muted); }
+
+/* --- Chat Preview Section --- */
+.chat-section {
+  border-top: 1px solid rgba(28,28,36,0.5);
+}
+.chat-preview {
+  max-width: 560px;
+  margin: 0 auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--black-2);
+}
+.chat-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.chat-header-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(117,156,231,0.2), rgba(117,156,231,0.1));
+  border: 1px solid rgba(117,156,231,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.chat-header-avatar svg { width: 18px; height: 18px; color: var(--blue); }
+.chat-header-text h4 {
+  font-size: 0.938rem;
+  font-weight: 600;
+  color: #fff;
+}
+.chat-header-text span {
+  font-size: 0.75rem;
+  color: var(--green);
+}
+.chat-messages {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: 420px;
+  overflow-y: auto;
+}
+.chat-bubble {
+  display: flex;
+  gap: 0.75rem;
+  max-width: 85%;
+  animation: fadeSlideUp 0.3s ease-out;
+}
+.chat-bubble.user {
+  flex-direction: row-reverse;
+  align-self: flex-end;
+}
+.chat-bubble.assistant { align-self: flex-start; }
+.chat-bubble-avatar {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.125rem;
+}
+.chat-bubble.user .chat-bubble-avatar {
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+}
+.chat-bubble.user .chat-bubble-avatar svg { width: 14px; height: 14px; color: #0a0a12; }
+.chat-bubble.assistant .chat-bubble-avatar {
+  background: linear-gradient(135deg, rgba(117,156,231,0.2), rgba(117,156,231,0.1));
+  border: 1px solid rgba(117,156,231,0.2);
+}
+.chat-bubble.assistant .chat-bubble-avatar svg { width: 14px; height: 14px; color: var(--blue); }
+.chat-bubble-content {
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+.chat-bubble.user .chat-bubble-content {
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  color: #0a0a12;
+  border-radius: 16px 16px 4px 16px;
+}
+.chat-bubble.assistant .chat-bubble-content {
+  background: linear-gradient(135deg, var(--black-3), var(--border));
+  border: 1px solid var(--border);
+  color: var(--fg);
+  border-radius: 16px 16px 16px 4px;
+}
+.chat-bubble-time {
+  font-size: 0.625rem;
+  color: var(--fg-muted-2);
+  margin-top: 0.25rem;
+}
+.chat-bubble.user .chat-bubble-time { text-align: right; }
+
+.chat-input-area {
+  padding: 1rem 1.25rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+.chat-input-area textarea {
+  flex: 1;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.625rem 0.875rem;
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  resize: none;
+  min-height: 40px;
+  max-height: 120px;
+  transition: border-color 0.2s ease;
+}
+.chat-input-area textarea:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(117,156,231,0.06);
+  outline: none;
+}
+.chat-input-area textarea::placeholder { color: var(--fg-muted-2); }
+.chat-send-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s var(--ease-smooth);
+}
+.chat-send-btn.active {
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  color: #0a0a12;
+}
+.chat-send-btn.active:hover {
+  box-shadow: 0 0 16px rgba(245,158,11,0.2);
+  transform: translateY(-1px);
+}
+.chat-send-btn.inactive {
+  background: var(--border);
+  color: var(--fg-muted-2);
+  cursor: not-allowed;
+}
+.chat-send-btn svg { width: 16px; height: 16px; }
+
+/* --- CTA Section --- */
+.cta-section {
+  text-align: center;
+  border-top: 1px solid rgba(28,28,36,0.5);
+}
+.cta-card {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 3rem;
+}
+.cta-card h2 {
+  font-size: clamp(1.75rem, 2.5vw, 2rem);
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.75rem;
+}
+.cta-card p {
+  font-size: 1rem;
+  color: var(--fg-muted);
+  margin-bottom: 2rem;
+  max-width: 450px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* --- Footer --- */
+.footer {
+  border-top: 1px solid rgba(28,28,36,0.5);
+  padding: 3.5rem var(--wrap-pad) 2rem;
+}
+.footer-inner {
+  max-width: var(--content-max);
+  margin: 0 auto;
+}
+.footer-main {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  gap: 2.5rem;
+  margin-bottom: 2.5rem;
+}
+.footer-brand p {
+  font-size: 0.875rem;
+  color: var(--fg-muted-2);
+  max-width: 260px;
+  margin-top: 0.75rem;
+  line-height: 1.6;
+}
+.footer-brand .byline {
+  font-size: 0.75rem;
+  color: var(--fg-muted-2);
+  margin-top: 1rem;
+}
+.footer-column h4 {
+  font-size: 0.688rem;
+  font-weight: 600;
+  color: var(--fg-muted-2);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 1rem;
+}
+.footer-column a {
+  display: block;
+  font-size: 0.875rem;
+  color: var(--fg-muted);
+  margin-bottom: 0.5rem;
+  transition: color 0.2s ease;
+}
+.footer-column a:hover { color: #fff; }
+.footer-divider {
+  border: none;
+  border-top: 1px solid rgba(28,28,36,0.4);
+  margin-bottom: 1.5rem;
+}
+.footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+  color: var(--fg-muted-2);
+}
+.footer-bottom .heart-row { display: flex; align-items: center; gap: 0.25rem; }
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+/* 1024px — Tablet landscape */
+@media (max-width: 1024px) {
+  :root {
+    --wrap-pad: 2.5rem;
+    --hero-pad: 5rem;
+    --section-pad: 4.5rem;
+  }
+  .features-grid { gap: 1rem; }
+  .steps-grid { gap: 1rem; }
+}
+
+/* 768px — Tablet / Mobile large */
+@media (max-width: 768px) {
+  :root {
+    --wrap-pad: 1.5rem;
+    --hero-pad: 4rem;
+    --section-pad: 3.5rem;
+  }
+  .header-nav { display: none; }
+  .nav-toggle { display: flex; }
+  .mobile-nav {
+    position: fixed;
+    top: 0; right: -280px;
+    width: 280px; height: 100vh;
+    background: var(--black-2);
+    border-left: 1px solid var(--border);
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    padding: 5rem 1.5rem 2rem;
+    gap: 1rem;
+    transition: right 0.35s var(--ease-out);
+  }
+  .mobile-nav.open { right: 0; }
+  .mobile-nav a {
+    font-size: 1rem;
+    color: var(--fg-muted);
+    padding: 0.5rem 0;
+    display: block;
+  }
+  .mobile-nav a:hover { color: #fff; }
+  .mobile-nav .btn-primary { margin-top: 0.5rem; text-align: center; }
+  .nav-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 150;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.35s ease, visibility 0.35s ease;
+  }
+  .nav-overlay.open { opacity: 1; visibility: visible; }
+
+  .features-grid { grid-template-columns: 1fr; }
+  .steps-grid { grid-template-columns: 1fr; gap: 1rem; }
+  .stats-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+  .auth-grid { grid-template-columns: 1fr; }
+  .footer-main { grid-template-columns: 1fr; text-align: center; }
+  .footer-brand p { margin: 0.75rem auto 0; }
+  .footer-bottom { flex-direction: column; gap: 0.5rem; }
+
+  .dashboard-preview { grid-template-columns: 1fr; }
+  .dashboard-sidebar { display: none; }
+  .metrics-grid { grid-template-columns: 1fr; }
+}
+
+/* 480px — Mobile small */
+@media (max-width: 480px) {
+  :root {
+    --wrap-pad: 1rem;
+    --hero-pad: 3rem;
+    --section-pad: 2.5rem;
+  }
+  .hero { min-height: auto; padding-top: calc(3.5rem + 60px); }
+  .hero h1 { font-size: 2rem; }
+  .hero-actions { flex-direction: column; }
+  .hero-actions .btn-primary,
+  .hero-actions .btn-secondary { width: 100%; }
+  .feature-card { padding: 1.25rem; }
+  .step-card { padding: 1.5rem; }
+  .auth-card { padding: 1.5rem; }
+  .cta-card { padding: 2rem; }
+  .chat-preview { border-radius: var(--radius-md); }
+  .header-logo-text { font-size: 1.25rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     HEADER
+     ============================================================ -->
+<header class="header" id="header">
+  <div class="header-inner">
+    <a href="/" class="header-logo">
+      <span class="header-logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        </svg>
+      </span>
+      <span class="header-logo-text">Thuban</span>
+    </a>
+    <nav class="header-nav">
+      <a href="#features">Funciones</a>
+      <a href="#stats">Estadísticas</a>
+      <a href="#dashboard">Dashboard</a>
+      <a href="#chat">Chat</a>
+      <a href="/login" class="btn-secondary" style="padding:0.5rem 1.25rem;font-size:0.813rem;">Iniciar Sesión</a>
+      <a href="/signup" class="btn-primary" style="padding:0.5rem 1.25rem;font-size:0.813rem;">Comenzar Gratis</a>
+    </nav>
+    <button class="nav-toggle" id="navToggle" aria-label="Menú">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<!-- Mobile nav overlay + panel -->
+<div class="nav-overlay" id="navOverlay"></div>
+<div class="mobile-nav" id="mobileNav">
+  <a href="#features">Funciones</a>
+  <a href="#stats">Estadísticas</a>
+  <a href="#dashboard">Dashboard</a>
+  <a href="#chat">Chat IA</a>
+  <a href="/login">Iniciar Sesión</a>
+  <a href="/signup" class="btn-primary">Comenzar Gratis</a>
+</div>
+
+<!-- ============================================================
+     HERO
+     ============================================================ -->
+<section class="hero hero-bg" id="hero">
+  <!-- Animated stars background -->
+  <div class="hero-stars" id="heroStars"></div>
+
+  <div class="hero-inner">
+    <div class="hero-badge">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+      </svg>
+      Powered by Polaris
+    </div>
+    <h1>
+      Inteligencia Artificial para<br>
+      <span>Bienes Raíces</span>
+    </h1>
+    <p>
+      Potencia tu negocio inmobiliario con IA especializada en el mercado LATAM.
+      Genera descripciones, analiza mercados, mejora negociaciones y atiende clientes como nunca antes.
+    </p>
+    <div class="hero-actions">
+      <a href="/signup" class="btn-primary">
+        Empieza con 5 Créditos Gratis
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
+          <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+        </svg>
+      </a>
+      <a href="/login" class="btn-secondary">Ya tengo cuenta</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     FEATURES
+     ============================================================ -->
+<section class="section" id="features">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <h2>4 herramientas, un solo asistente</h2>
+      <p>Todo lo que necesitas para destacar en el mercado inmobiliario mexicano y latinoamericano.</p>
+    </div>
+    <div class="features-grid">
+      <!-- Feature 1 -->
+      <div class="glass-card feature-card reveal reveal-delay-1">
+        <div class="feature-card-icon" style="background:rgba(245,158,11,0.1);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        </div>
+        <div>
+          <h3>Descripciones de Propiedades</h3>
+          <p>Genera descripciones profesionales y atractivas para tus listings en segundos.</p>
+        </div>
+      </div>
+      <!-- Feature 2 -->
+      <div class="glass-card feature-card reveal reveal-delay-2">
+        <div class="feature-card-icon" style="background:rgba(117,156,231,0.1);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#759ce7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>
+          </svg>
+        </div>
+        <div>
+          <h3>Análisis de Mercado</h3>
+          <p>Obtén insights sobre tendencias, precios y oportunidades de inversión al instante.</p>
+        </div>
+      </div>
+      <!-- Feature 3 -->
+      <div class="glass-card feature-card reveal reveal-delay-3">
+        <div class="feature-card-icon" style="background:rgba(52,211,153,0.1);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <div>
+          <h3>Negociación Inmobiliaria</h3>
+          <p>Estrategias y técnicas para cerrar los mejores tratos con confianza.</p>
+        </div>
+      </div>
+      <!-- Feature 4 -->
+      <div class="glass-card feature-card reveal reveal-delay-4">
+        <div class="feature-card-icon" style="background:rgba(251,146,60,0.1);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fb923c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </div>
+        <div>
+          <h3>Atención a Clientes</h3>
+          <p>Respuestas profesionales y seguimiento efectivo para cada prospecto.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     STATS
+     ============================================================ -->
+<section class="stats-section section" id="stats">
+  <div class="section-inner">
+    <div class="stats-grid">
+      <div class="stat-item reveal reveal-delay-1">
+        <div class="stat-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+        <div class="stat-value">50K+</div>
+        <div class="stat-label">Propiedades analizadas</div>
+      </div>
+      <div class="stat-item reveal reveal-delay-2">
+        <div class="stat-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <div class="stat-value">2.5s</div>
+        <div class="stat-label">Respuesta promedio</div>
+      </div>
+      <div class="stat-item reveal reveal-delay-3">
+        <div class="stat-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <div class="stat-value">LATAM</div>
+        <div class="stat-label">Mercado especializado</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     HOW IT WORKS
+     ============================================================ -->
+<section class="section">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <h2>¿Cómo funciona?</h2>
+      <p>Tres pasos simples para transformar tu flujo de trabajo inmobiliario.</p>
+    </div>
+    <div class="steps-grid">
+      <div class="glass-card step-card reveal reveal-delay-1">
+        <div class="step-number">1</div>
+        <h3>Describe tu necesidad</h3>
+        <p>Cuéntanos qué necesitas — una descripción de propiedad, análisis de mercado o consejo de negociación.</p>
+      </div>
+      <div class="glass-card step-card reveal reveal-delay-2">
+        <div class="step-number">2</div>
+        <h3>Thuban analiza</h3>
+        <p>Nuestra IA especializada procesa tu solicitud usando datos actualizados del mercado LATAM.</p>
+      </div>
+      <div class="glass-card step-card reveal reveal-delay-3">
+        <div class="step-number">3</div>
+        <h3>Recibe resultados</h3>
+        <p>Obtén respuestas profesionales, precisas y listas para usar en segundos.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     AUTH DEMO
+     ============================================================ -->
+<section class="auth-section section" id="auth">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <h2>Accede a Thuban</h2>
+      <p>Inicia sesión o crea tu cuenta gratis. Sin tarjeta de crédito.</p>
+    </div>
+    <div class="auth-grid">
+      <!-- Login card -->
+      <div class="glass-card auth-card reveal reveal-delay-1">
+        <div class="star-icon-big"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+        <h3>Iniciar Sesión</h3>
+        <p>Bienvenido de vuelta. Ingresa tus datos para continuar.</p>
+        <form class="auth-form" onsubmit="return false;">
+          <div class="field">
+            <label>Correo electrónico</label>
+            <div class="field-input">
+              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+              <input type="email" class="input" placeholder="correo@ejemplo.com" value="contacto@ejemplo.com">
+            </div>
+          </div>
+          <div class="field">
+            <label>Contraseña</label>
+            <div class="field-input">
+              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <input type="password" class="input" placeholder="••••••••" value="password123">
+            </div>
+          </div>
+          <button type="submit" class="btn-primary" style="margin-top:0.5rem;">
+            Iniciar Sesión
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </form>
+        <p class="auth-switch">¿No tienes cuenta? <a href="/signup">Regístrate</a></p>
+      </div>
+
+      <!-- Signup card -->
+      <div class="glass-card auth-card reveal reveal-delay-2">
+        <div class="star-icon-big"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+        <h3>Crear Cuenta</h3>
+        <p>Comienza con 5 créditos gratis. Sin compromiso.</p>
+        <form class="auth-form" onsubmit="return false;">
+          <div class="field">
+            <label>Nombre completo</label>
+            <div class="field-input">
+              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <input type="text" class="input" placeholder="Tu nombre" value="María García">
+            </div>
+          </div>
+          <div class="field">
+            <label>Correo electrónico</label>
+            <div class="field-input">
+              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+              <input type="email" class="input" placeholder="correo@ejemplo.com" value="maria@ejemplo.com">
+            </div>
+          </div>
+          <div class="field">
+            <label>Contraseña</label>
+            <div class="field-input">
+              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <input type="password" class="input" placeholder="Mínimo 6 caracteres">
+            </div>
+          </div>
+          <button type="submit" class="btn-primary" style="margin-top:0.5rem;">
+            Crear Cuenta Gratis
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </form>
+        <p class="auth-switch">¿Ya tienes cuenta? <a href="/login">Inicia Sesión</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     DASHBOARD PREVIEW
+     ============================================================ -->
+<section class="dashboard-section section" id="dashboard">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <h2>Dashboard Inteligente</h2>
+      <p>Todo lo que necesitas en un solo lugar. Métricas, herramientas y acceso rápido a tu asistente IA.</p>
+    </div>
+    <div class="dashboard-preview reveal reveal-delay-1">
+      <!-- Sidebar -->
+      <div class="dashboard-sidebar">
+        <div class="dashboard-sidebar-logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+          <span>Thuban</span>
+        </div>
+        <nav class="dashboard-nav">
+          <a href="#" class="dashboard-nav-item active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Dashboard
+          </a>
+          <a href="#" class="dashboard-nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Chat IA
+          </a>
+          <a href="#" class="dashboard-nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+            Análisis
+          </a>
+          <a href="#" class="dashboard-nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Negociación
+          </a>
+          <a href="#" class="dashboard-nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Clientes
+          </a>
+        </nav>
+        <div class="dashboard-sidebar-user">
+          <div class="dashboard-credits">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            5 créditos disponibles
+          </div>
+          <div class="dashboard-user">
+            <div class="dashboard-user-avatar">M</div>
+            <div class="dashboard-user-info">
+              <div class="dashboard-user-name">María García</div>
+              <div class="dashboard-user-email">maria@ejemplo.com</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="dashboard-content">
+        <div class="dashboard-header">
+          <div>
+            <h2>Panel Principal</h2>
+            <p>Resumen de tu actividad inmobiliaria</p>
+          </div>
+          <a href="#" class="btn-primary" style="padding:0.5rem 1.25rem;font-size:0.813rem;">Ir al Chat</a>
+        </div>
+
+        <!-- Metrics -->
+        <div class="metrics-grid">
+          <div class="dashboard-card metric-card">
+            <div class="metric-top">
+              <div class="metric-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+              <span class="metric-trend up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>12%</span>
+            </div>
+            <div class="metric-value">128</div>
+            <div class="metric-label">Descripciones generadas</div>
+          </div>
+          <div class="dashboard-card metric-card">
+            <div class="metric-top">
+              <div class="metric-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
+              <span class="metric-trend up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>8%</span>
+            </div>
+            <div class="metric-value">34</div>
+            <div class="metric-label">Análisis realizados</div>
+          </div>
+          <div class="dashboard-card metric-card">
+            <div class="metric-top">
+              <div class="metric-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+              <span class="metric-trend down"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>3%</span>
+            </div>
+            <div class="metric-value">18</div>
+            <div class="metric-label">Clientes atendidos</div>
+          </div>
+        </div>
+
+        <!-- Quick actions -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+          <div class="dashboard-card" style="padding:1rem;display:flex;align-items:center;gap:0.75rem;">
+            <div class="metric-icon" style="background:rgba(245,158,11,0.1);"><svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+            <div>
+              <div style="font-size:0.875rem;font-weight:600;color:#fff;">Último análisis</div>
+              <div style="font-size:0.75rem;color:var(--fg-muted-2);">Mercado CDMX · Hoy 10:30</div>
+            </div>
+          </div>
+          <div class="dashboard-card" style="padding:1rem;display:flex;align-items:center;gap:0.75rem;">
+            <div class="metric-icon" style="background:rgba(52,211,153,0.1);"><svg viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+            <div>
+              <div style="font-size:0.875rem;font-weight:600;color:#fff;">Tendencia activa</div>
+              <div style="font-size:0.75rem;color:var(--fg-muted-2);">+23% consultas esta semana</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     CHAT INTERFACE PREVIEW
+     ============================================================ -->
+<section class="chat-section section" id="chat">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <h2>Chat con IA Inmobiliaria</h2>
+      <p>Conversaciones naturales con inteligencia artificial especializada en bienes raíces LATAM.</p>
+    </div>
+    <div class="chat-preview reveal reveal-delay-1">
+      <!-- Chat header -->
+      <div class="chat-header">
+        <div class="chat-header-avatar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <div class="chat-header-text">
+          <h4>Asistente Thuban</h4>
+          <span>● En línea · IA Inmobiliaria</span>
+        </div>
+      </div>
+
+      <!-- Messages -->
+      <div class="chat-messages">
+        <!-- Assistant message -->
+        <div class="chat-bubble assistant">
+          <div class="chat-bubble-avatar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <div>
+            <div class="chat-bubble-content">
+              ¡Hola! Soy Thuban, tu asistente de IA para bienes raíces. ¿En qué puedo ayudarte hoy? Puedo generar descripciones de propiedades, analizar mercados, o ayudarte con estrategias de negociación.
+            </div>
+            <div class="chat-bubble-time">10:15 AM</div>
+          </div>
+        </div>
+
+        <!-- User message -->
+        <div class="chat-bubble user">
+          <div class="chat-bubble-avatar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <div>
+            <div class="chat-bubble-content">
+              Necesito una descripción profesional para un departamento en Polanco, 3 recámaras, 2 baños, 120m², con vista panorámica y amenidades.
+            </div>
+            <div class="chat-bubble-time">10:16 AM</div>
+          </div>
+        </div>
+
+        <!-- Assistant response -->
+        <div class="chat-bubble assistant">
+          <div class="chat-bubble-avatar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <div>
+            <div class="chat-bubble-content">
+              <strong>Departamento en Venta — Polanco, CDMX</strong><br><br>
+              Descubre este exclusivo departamento de 120m² en el corazón de Polanco. Con 3 amplias recámaras y 2 baños completos, este inmueble ofrece una vista panorámica inigualable que captura la esencia de la ciudad.<br><br>
+              El diseño contemporáneo se complementa con amenidades de primer nivel: alberca, gimnasio, roof garden y seguridad 24/7. Cada espacio ha sido cuidadosamente diseñado para maximizar la luz natural y la funcionalidad.<br><br>
+              Ubicado a pasos de los mejores restaurantes, boutiques y parques de Polanco. Ideal para quienes buscan el equilibrio entre vida urbana y confort.
+            </div>
+            <div class="chat-bubble-time">10:16 AM</div>
+          </div>
+        </div>
+
+        <!-- User message -->
+        <div class="chat-bubble user">
+          <div class="chat-bubble-avatar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <div>
+            <div class="chat-bubble-content">
+              Excelente. ¿Puedes sugerir un precio de venta competitivo basado en el mercado actual de Polanco?
+            </div>
+            <div class="chat-bubble-time">10:17 AM</div>
+          </div>
+        </div>
+
+        <!-- Assistant typing indicator -->
+        <div class="chat-bubble assistant">
+          <div class="chat-bubble-avatar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <div>
+            <div class="chat-bubble-content" style="display:flex;gap:4px;align-items:center;min-height:24px;">
+              <span style="width:6px;height:6px;border-radius:50%;background:var(--fg-muted-2);animation:twinkle 1.5s infinite;"></span>
+              <span style="width:6px;height:6px;border-radius:50%;background:var(--fg-muted-2);animation:twinkle 1.5s infinite 0.3s;"></span>
+              <span style="width:6px;height:6px;border-radius:50%;background:var(--fg-muted-2);animation:twinkle 1.5s infinite 0.6s;"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Input -->
+      <div class="chat-input-area">
+        <textarea rows="1" placeholder="Escribe tu mensaje...">¿Cuál es el precio promedio por m² en Polanco?</textarea>
+        <button class="chat-send-btn active" aria-label="Enviar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     CALL TO ACTION
+     ============================================================ -->
+<section class="cta-section section">
+  <div class="section-inner">
+    <div class="glass-card cta-card reveal">
+      <h2>Transforma tu negocio inmobiliario con IA</h2>
+      <p>Únete a los profesionales que ya potencian sus resultados con Thuban. Comienza hoy con 5 créditos gratis.</p>
+      <a href="/signup" class="btn-primary" style="font-size:1rem;padding:0.875rem 2rem;">
+        Comenzar Gratis
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-main">
+      <div class="footer-brand">
+        <a href="/" class="header-logo" style="justify-content:center;">
+          <span class="header-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
+          <span class="header-logo-text" style="font-size:1.25rem;">Thuban</span>
+        </a>
+        <p>Inteligencia Artificial especializada para el mercado inmobiliario LATAM.</p>
+        <div class="byline">by <a href="https://polaris.pw" style="color:#1edb7b;font-weight:600;">Polaris</a></div>
+      </div>
+      <div class="footer-column">
+        <h4>Ecosistema</h4>
+        <a href="https://polaris.pw" style="color:#1edb7b;">Polaris</a>
+        <a href="https://back-bone.dev" style="color:#fff;">BACKBONE</a>
+        <a href="https://visionnorth.vision" style="color:#0976F8;">VisionNorth</a>
+        <a href="https://padim.enmexico.casa" style="color:#f0c040;">PADIM</a>
+      </div>
+      <div class="footer-column">
+        <h4>Thuban</h4>
+        <a href="/login">Iniciar Sesión</a>
+        <a href="/signup">Crear Cuenta</a>
+        <a href="#features">Funciones</a>
+        <a href="#chat">Chat IA</a>
+      </div>
+    </div>
+    <hr class="footer-divider">
+    <div class="footer-bottom">
+      <span>&copy; 2026 Thuban. Todos los derechos reservados.</span>
+      <span class="heart-row">
+        <span>Hecho con</span>
+        <span style="color:#f87171;">♥</span>
+        <span>en México</span>
+      </span>
+    </div>
+  </div>
+</footer>
+
+<!-- ============================================================
+     JAVASCRIPT
+     ============================================================ -->
+<script>
+(function() {
+  'use strict';
+
+  // --- Header scroll behavior ---
+  const header = document.getElementById('header');
+  let lastScroll = 0;
+  window.addEventListener('scroll', function() {
+    const y = window.scrollY;
+    if (y > 20) {
+      header.classList.add('scrolled');
+    } else {
+      header.classList.remove('scrolled');
+    }
+    lastScroll = y;
+  }, { passive: true });
+
+  // --- Mobile nav ---
+  const navToggle = document.getElementById('navToggle');
+  const navMobile = document.getElementById('mobileNav');
+  const navOverlay = document.getElementById('navOverlay');
+  if (navToggle && navMobile) {
+    function toggleNav() {
+      navToggle.classList.toggle('open');
+      navMobile.classList.toggle('open');
+      navOverlay.classList.toggle('open');
+    }
+    navToggle.addEventListener('click', toggleNav);
+    navOverlay.addEventListener('click', toggleNav);
+    navMobile.querySelectorAll('a').forEach(function(a) {
+      a.addEventListener('click', toggleNav);
+    });
+  }
+
+  // --- Intersection Observer (reveal animations) ---
+  var revealElements = document.querySelectorAll('.reveal');
+  if (revealElements.length > 0) {
+    if ('IntersectionObserver' in window) {
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+      revealElements.forEach(function(el) { observer.observe(el); });
+    } else {
+      // Fallback: show all immediately
+      revealElements.forEach(function(el) { el.classList.add('visible'); });
+    }
+  }
+
+  // --- Safety net: show hidden reveals after 3s ---
+  setTimeout(function() {
+    document.querySelectorAll('.reveal:not(.visible)').forEach(function(el) {
+      el.classList.add('visible');
+    });
+  }, 3000);
+
+  // --- Star dots generation (hero background) ---
+  var heroStars = document.getElementById('heroStars');
+  if (heroStars) {
+    var starCount = 40;
+    var fragment = document.createDocumentFragment();
+    for (var i = 0; i < starCount; i++) {
+      var dot = document.createElement('div');
+      dot.className = 'star-dot';
+      dot.style.left = (Math.random() * 100) + '%';
+      dot.style.top = (Math.random() * 100) + '%';
+      dot.style.width = dot.style.height = (1 + Math.random() * 3) + 'px';
+      dot.style.animationDelay = (Math.random() * 5) + 's';
+      dot.style.animationDuration = (2 + Math.random() * 4) + 's';
+      dot.style.opacity = 0.2 + Math.random() * 0.5;
+      fragment.appendChild(dot);
+    }
+    heroStars.appendChild(fragment);
+  }
+
+})();
+</script>
+
+<!-- Design system annotation -->
+<!--
+  THUBAN — Design Reference v1.0.0
+  Paleta: #0c0c0f (negro profundo) + #f59e0b/#fbbf24 (gold) + #759ce7 (blue accent)
+  Tipografía: Inter (sans) + JetBrains Mono (mono)
+  Espaciado: hero 7rem, sections 6rem, wrap 4rem desktop
+  Glassmorphism: rgba(17,17,20,0.85) + backdrop-blur + border white/0.06
+  Micro-interacciones: all transitions 0.2s cubic-bezier(0.4,0,0.2,1)
+  Breakpoints: 1024px, 768px, 480px
+-->
+</body>
+</html>

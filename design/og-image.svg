@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0c0c0f"/>
+      <stop offset="100%" stop-color="#111114"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#fbbf24"/>
+    </linearGradient>
+    <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#759ce7"/>
+      <stop offset="100%" stop-color="#8bb9f7"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  
+  <!-- Ambient glow -->
+  <ellipse cx="600" cy="200" rx="450" ry="250" fill="rgba(245,158,11,0.06)"/>
+  <ellipse cx="600" cy="500" rx="350" ry="200" fill="rgba(117,156,231,0.04)"/>
+  
+  <!-- Stars -->
+  <circle cx="150" cy="100" r="2" fill="rgba(245,158,11,0.6)"/>
+  <circle cx="300" cy="80" r="1.5" fill="rgba(255,255,255,0.4)"/>
+  <circle cx="900" cy="120" r="2" fill="rgba(245,158,11,0.5)"/>
+  <circle cx="1050" cy="90" r="1.5" fill="rgba(255,255,255,0.3)"/>
+  <circle cx="200" cy="400" r="1.5" fill="rgba(255,255,255,0.3)"/>
+  <circle cx="1000" cy="450" r="2" fill="rgba(245,158,11,0.4)"/>
+  <circle cx="500" cy="150" r="1" fill="rgba(255,255,255,0.5)"/>
+  <circle cx="750" cy="180" r="1.5" fill="rgba(255,255,255,0.3)"/>
+  
+  <!-- Star icon (gold) -->
+  <g transform="translate(600, 220)">
+    <polygon points="0,-60 18,-20 60,-20 27,10 38,52 0,25 -38,52 -27,10 -60,-20 -18,-20" fill="url(#gold)" opacity="0.95"/>
+  </g>
+  
+  <!-- Thuban text -->
+  <text x="600" y="340" text-anchor="middle" font-family="Inter, 'Segoe UI', sans-serif" font-size="96" font-weight="800" fill="#ffffff" letter-spacing="-2">Thuban</text>
+  
+  <!-- Tagline -->
+  <text x="600" y="400" text-anchor="middle" font-family="Inter, 'Segoe UI', sans-serif" font-size="28" font-weight="400" fill="#9898a8" letter-spacing="0">IA para Bienes Raíces</text>
+  
+  <!-- Divider line -->
+  <line x1="500" y1="430" x2="700" y2="430" stroke="rgba(245,158,11,0.3)" stroke-width="1"/>
+  
+  <!-- Ecosystem badge -->
+  <text x="600" y="480" text-anchor="middle" font-family="Inter, 'Segoe UI', sans-serif" font-size="16" font-weight="500" fill="#5c5c6e" letter-spacing="3">POLARIS ECOSYSTEM</text>
+</svg>
