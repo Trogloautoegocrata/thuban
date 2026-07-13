@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thuban — IA para Bienes Raíces LATAM</title>
+<meta name="description" content="Inteligencia Artificial especializada para el mercado inmobiliario LATAM. Genera descripciones, analiza mercados y atiende clientes con IA.">
+<style>
+*,::after,::before{box-sizing:border-box;margin:0;padding:0}
+@font-face{font-family:Inter;font-style:normal;font-weight:400;src:local('Inter Regular'),local('Inter'),local('Segoe UI'),local('Roboto'),local('Helvetica Neue'),local('Arial'),local('sans-serif')}
+@font-face{font-family:Inter;font-style:normal;font-weight:500;src:local('Inter Medium'),local('Inter'),local('Segoe UI'),local('Roboto'),local('Helvetica Neue'),local('Arial'),local('sans-serif')}
+@font-face{font-family:Inter;font-style:normal;font-weight:600;src:local('Inter SemiBold'),local('Inter'),local('Segoe UI'),local('Roboto'),local('Helvetica Neue'),local('Arial'),local('sans-serif')}
+@font-face{font-family:Inter;font-style:normal;font-weight:700;src:local('Inter Bold'),local('Inter'),local('Segoe UI'),local('Roboto'),local('Helvetica Neue'),local('Arial'),local('sans-serif')}
+@font-face{font-family:Inter;font-style:normal;font-weight:800;src:local('Inter ExtraBold'),local('Inter'),local('Segoe UI'),local('Roboto'),local('Helvetica Neue'),local('Arial'),local('sans-serif')}
+@font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:400;src:local('JetBrains Mono Regular'),local('JetBrains Mono'),local('Consolas'),local('monospace')}
+:root{--bg:#0c0c0f;--fg:#f0f0f5;--card:#111114;--card-hover:#16161a;--border:#1c1c24;--border-light:#2a2a35;--muted:#9898a8;--muted-2:#5c5c6e;--gold:#f59e0b;--gold-light:#fbbf24;--gold-glow:rgba(245,158,11,0.15);--blue:#759ce7;--blue-light:#8bb9f7;--green:#34d399;--red:#f87171;--font-sans:Inter,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;--font-mono:'JetBrains Mono',Consolas,monospace;--rad-sm:8px;--rad-md:12px;--rad-lg:16px;--rad-xl:24px;--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.22,1,.36,1);--wrap:1200px}
+html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;scroll-behavior:smooth}
+body{font-family:var(--font-sans);background:var(--bg);color:var(--fg);line-height:1.7;min-height:100vh}
+::selection{background:rgba(245,158,11,.2);color:#fff}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;height:auto}
+button,input,textarea{font:inherit;color:inherit}
+
+/* Utility */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0}
+.container{max-width:var(--wrap);margin:0 auto;padding:0 1.5rem}
+@media(min-width:1024px){.container{padding:0 4rem}}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;border:none;cursor:pointer;font-weight:600;font-size:.938rem;padding:.75rem 1.75rem;border-radius:var(--rad-sm);transition:all .25s var(--ease);text-decoration:none}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold-light));color:#0a0a12}
+.btn-gold:hover{box-shadow:0 0 24px var(--gold-glow);transform:translateY(-1px)}
+.btn-gold:active{transform:translateY(0)}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
+.btn-ghost:hover{color:var(--fg);border-color:var(--gold);background:rgba(255,255,255,.03)}
+.btn-lg{padding:1rem 2rem;font-size:1rem;border-radius:var(--rad-md)}
+.btn-sm{padding:.5rem 1rem;font-size:.813rem}
+
+/* Glass card */
+.glass-card{background:linear-gradient(160deg,rgba(17,17,20,.85),rgba(22,22,26,.5));backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.06);border-radius:var(--rad-md);transition:all .3s var(--ease)}
+.glass-card:hover{transform:translateY(-2px);border-color:rgba(245,158,11,.2);box-shadow:0 8px 32px rgba(0,0,0,.4)}
+
+/* Hero gradient */
+.hero-bg{background:radial-gradient(ellipse 80% 50% at 50% -20%,rgba(245,158,11,.12),transparent),radial-gradient(ellipse 50% 30% at 20% 80%,rgba(117,156,231,.08),transparent),var(--bg)}
+
+/* Section padding */
+.section{padding:6rem 0}
+@media(max-width:768px){.section{padding:4rem 0}}
+
+/* Reveal animation */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s var(--ease-out),transform .6s var(--ease-out)}
+.reveal.visible,.reveal.pre-animate{opacity:1;transform:translateY(0)}
+.reveal.pre-animate{opacity:0;transform:translateY(24px)}
+.reveal-d1{transition-delay:.1s}
+.reveal-d2{transition-delay:.2s}
+.reveal-d3{transition-delay:.3s}
+.reveal-d4{transition-delay:.4s}
+
+/* ===== HEADER ===== */
+.header{position:fixed;top:0;left:0;right:0;z-index:50;transition:all .3s var(--ease)}
+.header-scrolled{background:rgba(12,12,15,.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(28,28,36,.8)}
+.header-inner{display:flex;align-items:center;justify-content:space-between;height:72px}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-star{width:26px;height:26px;color:var(--gold);fill:var(--gold);transition:transform .2s var(--ease)}
+.logo:hover .logo-star{transform:scale(1.12) rotate(8deg)}
+.logo-text{font-size:1.375rem;font-weight:800;letter-spacing:-.02em}
+.nav{display:flex;align-items:center;gap:1.5rem}
+.nav-link{font-size:.875rem;color:var(--muted);transition:color .2s var(--ease)}
+.nav-link:hover{color:var(--gold)}
+
+/* Mobile menu */
+.hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px;z-index:60}
+.hamburger span{display:block;width:22px;height:2px;background:var(--fg);border-radius:2px;transition:all .3s var(--ease)}
+.hamburger.active span:nth-child(1){transform:rotate(45deg) translate(5px,5px)}
+.hamburger.active span:nth-child(2){opacity:0}
+.hamburger.active span:nth-child(3){transform:rotate(-45deg) translate(5px,-5px)}
+.mobile-menu{position:fixed;top:0;right:-100%;width:280px;height:100vh;background:var(--card);flex-direction:column;padding:5rem 2rem 2rem;gap:1.25rem;transition:right .35s var(--ease-out);z-index:55;border-left:1px solid var(--border)}
+.mobile-menu.open{right:0}
+.mobile-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:54;opacity:0;visibility:hidden;transition:opacity .35s ease,visibility .35s ease}
+.mobile-overlay.open{opacity:1;visibility:visible}
+
+/* ===== HERO ===== */
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:calc(7rem + 72px) 1.5rem 7rem;text-align:center}
+.hero-stars{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.hero-star{position:absolute;width:3px;height:3px;background:#fff;border-radius:50%;opacity:0;animation:twinkle var(--dur,4s) ease-in-out infinite;animation-delay:var(--del,0s)}
+.hero-star.gold{background:var(--gold);width:4px;height:4px}
+.hero-star.blue{background:var(--blue);width:2px;height:2px}
+.hero-content{position:relative;z-index:2;max-width:800px}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;padding:.375rem 1rem;border-radius:999px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);margin-bottom:1.5rem;font-size:.813rem;color:var(--gold)}
+.hero-badge svg{width:14px;height:14px}
+.hero h1{font-size:clamp(2.5rem,6vw,4.5rem);font-weight:800;letter-spacing:-.03em;line-height:1.1;margin-bottom:1.5rem}
+.hero h1 .gold-text{background:linear-gradient(135deg,var(--gold),var(--gold-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:clamp(1rem,1.4vw,1.188rem);color:var(--muted);max-width:640px;margin:0 auto 2.5rem;line-height:1.8}
+.hero-actions{display:flex;flex-wrap:wrap;gap:1rem;justify-content:center}
+.hero-glow{position:absolute;width:600px;height:600px;border-radius:50%;filter:blur(120px);opacity:.08;pointer-events:none;z-index:0}
+.hero-glow.gold{background:radial-gradient(circle,rgba(245,158,11,.3),transparent 70%);top:-20%;left:50%;transform:translateX(-50%)}
+.hero-glow.blue{background:radial-gradient(circle,rgba(117,156,231,.2),transparent 70%);bottom:-30%;right:-10%}
+
+/* ===== FEATURES ===== */
+.features-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.25rem}
+.feature-card{padding:1.75rem;display:flex;flex-direction:column;gap:1rem}
+.feature-icon{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:var(--rad-sm);background:rgba(245,158,11,.1);transition:all .3s var(--ease)}
+.feature-card:hover .feature-icon{background:rgba(245,158,11,.15);transform:scale(1.05)}
+.feature-icon svg{width:24px;height:24px;color:var(--gold)}
+.feature-icon.blue{background:rgba(117,156,231,.1)}
+.feature-icon.blue svg{color:var(--blue)}
+.feature-icon.green{background:rgba(52,211,153,.1)}
+.feature-icon.green svg{color:var(--green)}
+.feature-card h3{font-size:1.125rem;font-weight:600;line-height:1.3}
+.feature-card p{font-size:.875rem;color:var(--muted);line-height:1.7}
+.feature-card .top-glow{position:absolute;top:-1px;left:2rem;right:2rem;height:1px;opacity:0;transition:opacity .3s var(--ease);background:linear-gradient(90deg,transparent,rgba(245,158,11,.4),transparent)}
+.feature-card:hover .top-glow{opacity:1}
+.feature-card{position:relative}
+
+/* ===== STATS ===== */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;text-align:center}
+.stat-item{display:flex;flex-direction:column;align-items:center;gap:.75rem;padding:1.5rem}
+.stat-icon{width:48px;height:48px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(245,158,11,.08);transition:all .3s var(--ease)}
+.stat-item:hover .stat-icon{background:rgba(245,158,11,.15);transform:scale(1.08)}
+.stat-icon svg{width:24px;height:24px;color:var(--gold)}
+.stat-value{font-size:1.75rem;font-weight:700;letter-spacing:-.02em}
+.stat-label{font-size:.875rem;color:var(--muted)}
+
+/* ===== CHAT DEMO ===== */
+.chat-demo{max-width:600px;margin:0 auto}
+.chat-demo-card{border-radius:var(--rad-lg);overflow:hidden;background:linear-gradient(160deg,rgba(17,17,20,.9),rgba(22,22,26,.6));border:1px solid var(--border)}
+.chat-demo-header{padding:1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.75rem}
+.chat-demo-header-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px rgba(52,211,153,.4)}
+.chat-demo-header-text{font-size:.875rem;font-weight:600}
+.chat-demo-header-status{font-size:.75rem;color:var(--muted-2)}
+.chat-demo-messages{padding:1.25rem;display:flex;flex-direction:column;gap:1rem;min-height:320px;max-height:400px;overflow-y:auto}
+.chat-msg{display:flex;gap:10px;animation:fadeSlideUp .3s var(--ease-out)}
+.chat-msg.user{flex-direction:row-reverse}
+.chat-avatar{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:2px}
+.chat-avatar.user{background:linear-gradient(135deg,var(--gold),var(--gold-light))}
+.chat-avatar.user svg{width:16px;height:16px;color:#0a0a12}
+.chat-avatar.bot{background:linear-gradient(135deg,rgba(117,156,231,.2),rgba(117,156,231,.1));border:1px solid rgba(117,156,231,.2)}
+.chat-avatar.bot svg{width:16px;height:16px;color:var(--blue)}
+.chat-bubble{max-width:78%;padding:.875rem 1.125rem;font-size:.875rem;line-height:1.6;border-radius:var(--rad-md)}
+.chat-bubble.user{border-radius:var(--rad-md) var(--rad-md) 4px var(--rad-md);background:linear-gradient(135deg,var(--gold),var(--gold-light));color:#0a0a12}
+.chat-bubble.bot{border-radius:var(--rad-md) var(--rad-md) var(--rad-md) 4px;background:linear-gradient(160deg,rgba(22,22,26,.9),rgba(28,28,36,.6));border:1px solid var(--border)}
+.chat-typing{display:flex;gap:4px;padding:.5rem 1rem;align-items:center}
+.chat-typing span{width:6px;height:6px;border-radius:50%;background:var(--muted-2);animation:bounce 1.4s ease-in-out infinite}
+.chat-typing span:nth-child(2){animation-delay:.2s}
+.chat-typing span:nth-child(3){animation-delay:.4s}
+.chat-input-area{display:flex;gap:.5rem;padding:.875rem 1.25rem;border-top:1px solid var(--border)}
+.chat-input{flex:1;background:transparent;border:none;outline:none;font-size:.875rem;padding:.5rem 0;color:var(--fg)}
+.chat-input::placeholder{color:var(--muted-2)}
+.chat-send{width:36px;height:36px;border-radius:var(--rad-sm);border:none;background:var(--border);color:var(--muted-2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .25s var(--ease);flex-shrink:0}
+.chat-send.active{background:linear-gradient(135deg,var(--gold),var(--gold-light));color:#0a0a12}
+.chat-send.active:hover{box-shadow:0 0 16px var(--gold-glow);transform:translateY(-1px)}
+.chat-send svg{width:16px;height:16px}
+
+/* ===== PRICING ===== */
+.pricing-toggle{display:inline-flex;align-items:center;gap:.75rem;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:999px;padding:.375rem;margin-bottom:3rem}
+.pricing-toggle button{padding:.5rem 1.25rem;border-radius:999px;border:none;background:transparent;color:var(--muted);font-size:.875rem;font-weight:500;cursor:pointer;transition:all .25s var(--ease)}
+.pricing-toggle button.active{background:var(--gold);color:#0a0a12;font-weight:600}
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;align-items:start}
+.pricing-card{padding:2rem 1.75rem;display:flex;flex-direction:column;gap:1.25rem;position:relative}
+.pricing-card.featured{border-color:rgba(245,158,11,.3);transform:scale(1.03)}
+.pricing-card.featured:hover{border-color:rgba(245,158,11,.5)}
+.pricing-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);padding:.25rem 1rem;background:linear-gradient(135deg,var(--gold),var(--gold-light));color:#0a0a12;font-size:.75rem;font-weight:700;border-radius:999px}
+.pricing-name{font-size:.875rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.pricing-price{font-size:2.5rem;font-weight:800;letter-spacing:-.03em;line-height:1}
+.pricing-price span{font-size:1rem;font-weight:400;color:var(--muted-2);letter-spacing:0}
+.pricing-desc{font-size:.875rem;color:var(--muted);line-height:1.6}
+.pricing-features{list-style:none;display:flex;flex-direction:column;gap:.75rem}
+.pricing-features li{display:flex;align-items:center;gap:8px;font-size:.875rem}
+.pricing-features li svg{width:16px;height:16px;color:var(--green);flex-shrink:0}
+.pricing-features li .muted{color:var(--muted-2)}
+
+/* ===== CTA ===== */
+.cta-section{background:linear-gradient(160deg,rgba(245,158,11,.06),rgba(117,156,231,.04));border-top:1px solid rgba(245,158,11,.1);border-bottom:1px solid rgba(245,158,11,.1);text-align:center;padding:6rem 1.5rem}
+.cta-section h2{font-size:clamp(1.75rem,4vw,3rem);font-weight:700;margin-bottom:1rem}
+.cta-section p{font-size:1.125rem;color:var(--muted);max-width:500px;margin:0 auto 2rem}
+
+/* ===== FOOTER ===== */
+.footer{border-top:1px solid rgba(28,28,36,.6);padding:3.5rem 0}
+.footer-inner{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:2.5rem}
+.footer-brand{display:flex;flex-direction:column;gap:.75rem}
+.footer-brand p{font-size:.875rem;color:var(--muted-2);max-width:260px;line-height:1.6}
+.footer-by{font-size:.813rem;color:var(--muted-2);display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.footer-col h4{font-size:.75rem;font-weight:700;color:var(--muted-2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:1rem}
+.footer-col a{display:block;font-size:.875rem;color:var(--muted);padding:.25rem 0;transition:color .2s var(--ease)}
+.footer-col a:hover{color:var(--gold)}
+.footer-bottom{border-top:1px solid rgba(28,28,36,.4);margin-top:2.5rem;padding-top:1.5rem;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:1rem}
+.footer-bottom p{font-size:.813rem;color:var(--muted-2)}
+.footer-heart{display:flex;align-items:center;gap:4px;font-size:.813rem;color:var(--muted-2);flex-wrap:wrap}
+
+/* ===== ANIMATIONS ===== */
+@keyframes twinkle{0%,100%{opacity:0}20%{opacity:.8}40%{opacity:.3}60%{opacity:.6}80%{opacity:.1}}
+@keyframes fadeSlideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-8px)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:1024px){
+  .pricing-grid{grid-template-columns:repeat(2,1fr)}
+  .pricing-card.featured{grid-column:1/-1;max-width:400px;margin:0 auto;transform:none}
+  .pricing-card.featured:hover{transform:translateY(-2px)}
+  .features-grid{gap:1rem}
+  .footer-inner{grid-template-columns:1fr 1fr;gap:2rem}
+}
+
+@media(max-width:768px){
+  .nav{display:none}
+  .hamburger{display:flex}
+  .features-grid{grid-template-columns:1fr}
+  .stats-grid{gap:1rem}
+  .stat-value{font-size:1.5rem}
+  .hero h1{font-size:clamp(2rem,8vw,2.75rem)}
+  .hero{padding:calc(5rem + 64px) 1.25rem 5rem}
+  .section{padding:3.5rem 0}
+  .pricing-grid{grid-template-columns:1fr;gap:1rem}
+  .pricing-card.featured{transform:none}
+  .footer-inner{grid-template-columns:1fr;gap:2rem;text-align:center}
+  .footer-brand p{margin:0 auto}
+  .footer-by{justify-content:center}
+  .cta-section{padding:4rem 1.25rem}
+  .chat-msg{max-width:100%}
+  .chat-bubble{max-width:85%}
+}
+
+@media(max-width:480px){
+  .container{padding:0 1rem}
+  .hero{padding:calc(4rem + 60px) 1rem 4rem}
+  .section{padding:3rem 0}
+  .hero h1{font-size:clamp(1.75rem,9vw,2.25rem)}
+  .hero p{font-size:.95rem}
+  .stats-grid{grid-template-columns:1fr;gap:.75rem}
+  .stat-item{padding:1rem}
+  .btn-lg{padding:.875rem 1.5rem;font-size:.938rem}
+  .feature-card{padding:1.5rem}
+  .pricing-card{padding:1.5rem}
+  .chat-demo-messages{min-height:260px;max-height:320px;padding:1rem}
+  .footer{padding:2.5rem 0}
+  .footer-bottom{flex-direction:column;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="header" id="header">
+  <div class="container header-inner">
+    <a href="/" class="logo" aria-label="Thuban">
+      <svg class="logo-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      <span class="logo-text">Thuban</span>
+    </a>
+    <nav class="nav" id="nav">
+      <a href="#features" class="nav-link">Funciones</a>
+      <a href="#pricing" class="nav-link">Precios</a>
+      <a href="/login" class="nav-link">Iniciar Sesión</a>
+      <a href="/signup" class="btn btn-gold btn-sm">Comenzar Gratis</a>
+    </nav>
+    <button class="hamburger" id="hamburger" aria-label="Menú" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<div class="mobile-overlay" id="mobileOverlay"></div>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#features" class="nav-link">Funciones</a>
+  <a href="#pricing" class="nav-link">Precios</a>
+  <hr style="border-color:var(--border);margin:.5rem 0">
+  <a href="/login" class="nav-link">Iniciar Sesión</a>
+  <a href="/signup" class="btn btn-gold" style="margin-top:.5rem;text-align:center">Comenzar Gratis</a>
+</div>
+
+<!-- ===== HERO ===== -->
+<section class="hero hero-bg" id="hero">
+  <div class="hero-glow gold"></div>
+  <div class="hero-glow blue"></div>
+  <div class="hero-stars" id="heroStars"></div>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 6 6 6 6 0 0 0-6 6 6 6 0 0 0-6-6 6 6 0 0 0 6-6Z"/><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/></svg>
+      Powered by Polaris by VisionNorth
+    </div>
+    <h1>Inteligencia Artificial para <span class="gold-text">Bienes Raíces</span></h1>
+    <p>Genera descripciones profesionales, analiza mercados, mejora tus negociaciones y atiende clientes con IA especializada en el sector inmobiliario LATAM.</p>
+    <div class="hero-actions">
+      <a href="/signup" class="btn btn-gold btn-lg">Empieza con 5 Créditos Gratis
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+      <a href="/login" class="btn btn-ghost btn-lg">Ya tengo cuenta</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FEATURES ===== -->
+<section class="section" id="features">
+  <div class="container">
+    <div class="reveal pre-animate" style="text-align:center;margin-bottom:3.5rem">
+      <h2 style="font-size:clamp(1.75rem,4vw,3rem);font-weight:700;margin-bottom:.75rem">4 herramientas, un solo asistente</h2>
+      <p style="color:var(--muted);max-width:520px;margin:0 auto;font-size:1.063rem">Todo lo que necesitas para destacar en el mercado inmobiliario mexicano y latinoamericano.</p>
+    </div>
+    <div class="features-grid">
+      <div class="glass-card feature-card reveal pre-animate">
+        <div class="top-glow"></div>
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <h3>Descripciones de Propiedades</h3>
+        <p>Genera descripciones profesionales y atractivas para tus listings en segundos.</p>
+      </div>
+      <div class="glass-card feature-card reveal pre-animate reveal-d1">
+        <div class="top-glow"></div>
+        <div class="feature-icon blue">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+        </div>
+        <h3>Análisis de Mercado</h3>
+        <p>Obtén insights sobre tendencias, precios y oportunidades de inversión en tiempo real.</p>
+      </div>
+      <div class="glass-card feature-card reveal pre-animate reveal-d2">
+        <div class="top-glow"></div>
+        <div class="feature-icon green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h3>Negociación Inmobiliaria</h3>
+        <p>Estrategias y técnicas basadas en IA para cerrar los mejores tratos con confianza.</p>
+      </div>
+      <div class="glass-card feature-card reveal pre-animate reveal-d3">
+        <div class="top-glow"></div>
+        <div class="feature-icon" style="background:rgba(245,158,11,.1)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <h3>Atención a Clientes</h3>
+        <p>Respuestas profesionales y seguimiento efectivo para cada prospecto, 24/7.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== STATS ===== -->
+<section class="section" style="border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-item reveal pre-animate">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+        </div>
+        <div class="stat-value">Especializado</div>
+        <div class="stat-label">Sector Inmobiliario</div>
+      </div>
+      <div class="stat-item reveal pre-animate reveal-d1">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <div class="stat-value">Instantáneo</div>
+        <div class="stat-label">Respuestas en tiempo real</div>
+      </div>
+      <div class="stat-item reveal pre-animate reveal-d2">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </div>
+        <div class="stat-value">LATAM</div>
+        <div class="stat-label">Mercado Latinoamericano</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CHAT DEMO ===== -->
+<section class="section" id="chat">
+  <div class="container">
+    <div class="reveal pre-animate" style="text-align:center;margin-bottom:3.5rem">
+      <h2 style="font-size:clamp(1.75rem,4vw,3rem);font-weight:700;margin-bottom:.75rem">Asistente Conversacional</h2>
+      <p style="color:var(--muted);max-width:520px;margin:0 auto;font-size:1.063rem">Thuban entiende el lenguaje inmobiliario y te responde al instante.</p>
+    </div>
+    <div class="chat-demo reveal pre-animate reveal-d1">
+      <div class="chat-demo-card">
+        <div class="chat-demo-header">
+          <div class="chat-demo-header-dot"></div>
+          <div>
+            <div class="chat-demo-header-text">Thuban ✦ Activo</div>
+            <div class="chat-demo-header-status">IA conversacional inmobiliaria</div>
+          </div>
+        </div>
+        <div class="chat-demo-messages" id="chatMessages">
+          <div class="chat-msg bot">
+            <div class="chat-avatar bot">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <div class="chat-bubble bot">¡Hola! Soy Thuban, tu asistente IA para bienes raíces. Puedo ayudarte a crear descripciones de propiedades, analizar el mercado o preparar una negociación. ¿Con qué te ayudo hoy?</div>
+          </div>
+          <div class="chat-msg user">
+            <div class="chat-avatar user">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <div class="chat-bubble user">Quiero una descripción profesional para una casa de 3 recámaras en Polanco, CDMX.</div>
+          </div>
+          <div class="chat-msg bot">
+            <div class="chat-avatar bot">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <div class="chat-bubble bot">¡Claro! Aquí tienes una descripción optimizada para venta:<br><br>✨ <strong>Exclusividad en Polanco</strong> — Casa de 3 recámaras con acabados de lujo, terraza privada y vista panorámica. A pasos de restaurantes, boutiques y los mejores colegios de la Ciudad de México.<br><br>💎 <strong>315 m² de construcción</strong> · Sala y comedor doble altura · Cocina equipada con isla central · Roof garden con asador · 2 estacionamientos · 24/7 seguridad<br><br>¿Te gustaría ajustar el tono o agregar detalles?</div>
+          </div>
+        </div>
+        <div class="chat-input-area">
+          <input type="text" class="chat-input" id="chatInput" placeholder="Escribe tu mensaje..." autocomplete="off">
+          <button class="chat-send" id="chatSend" aria-label="Enviar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PRICING ===== -->
+<section class="section" id="pricing" style="border-top:1px solid var(--border)">
+  <div class="container">
+    <div class="reveal pre-animate" style="text-align:center;margin-bottom:2rem">
+      <h2 style="font-size:clamp(1.75rem,4vw,3rem);font-weight:700;margin-bottom:.75rem">Planes diseñados para crecer</h2>
+      <p style="color:var(--muted);max-width:520px;margin:0 auto 1.5rem;font-size:1.063rem">Empieza gratis y escala cuando lo necesites.</p>
+      <div class="pricing-toggle" id="pricingToggle">
+        <button class="active" data-period="monthly">Mensual</button>
+        <button data-period="annual">Anual <span style="font-size:.688rem;opacity:.7">−20%</span></button>
+      </div>
+    </div>
+    <div class="pricing-grid reveal pre-animate reveal-d1">
+      <!-- Free -->
+      <div class="glass-card pricing-card">
+        <div class="pricing-name">Free</div>
+        <div class="pricing-price" data-monthly="$0" data-annual="$0">$0 <span>/mes</span></div>
+        <p class="pricing-desc">Perfecto para probar Thuban sin compromiso.</p>
+        <ul class="pricing-features">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 5 créditos gratis</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Descripciones básicas</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Chat estándar</li>
+          <li><span class="muted">✗ Análisis de mercado</span></li>
+          <li><span class="muted">✗ API access</span></li>
+        </ul>
+        <a href="/signup" class="btn btn-gold" style="width:100%;margin-top:auto">Comenzar Gratis</a>
+      </div>
+      <!-- Pro (featured) -->
+      <div class="glass-card pricing-card featured">
+        <div class="pricing-badge">MÁS POPULAR</div>
+        <div class="pricing-name">Pro</div>
+        <div class="pricing-price" data-monthly="$299" data-annual="$239">$299 <span>/mes</span></div>
+        <p class="pricing-desc">Para agentes y brokers que buscan resultados profesionales.</p>
+        <ul class="pricing-features">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 100 créditos / mes</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Descripciones premium</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Análisis de mercado</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Chat prioritario</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> API access</li>
+        </ul>
+        <a href="/signup" class="btn btn-gold" style="width:100%;margin-top:auto">Empieza Gratis</a>
+      </div>
+      <!-- Enterprise -->
+      <div class="glass-card pricing-card">
+        <div class="pricing-name">Enterprise</div>
+        <div class="pricing-price" data-monthly="$999" data-annual="$799">$999 <span>/mes</span></div>
+        <p class="pricing-desc">Para desarrolladores y equipos que necesitan máxima capacidad.</p>
+        <ul class="pricing-features">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Créditos ilimitados</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Todo lo de Pro</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Soporte dedicado</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Onboarding personalizado</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> SLA garantizado</li>
+        </ul>
+        <a href="/signup" class="btn btn-ghost" style="width:100%;margin-top:auto">Contactar</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA ===== -->
+<section class="cta-section reveal pre-animate">
+  <h2>Tu nuevo asistente inmobiliario te espera</h2>
+  <p>Únete a los profesionales que ya están transformando su negocio con Thuban.</p>
+  <a href="/signup" class="btn btn-gold btn-lg">
+    Empieza Gratis
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+  </a>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <a href="/" class="logo" aria-label="Thuban">
+          <svg class="logo-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <span class="logo-text">Thuban</span>
+        </a>
+        <p>Inteligencia Artificial especializada para el mercado inmobiliario LATAM.</p>
+        <div class="footer-by">
+          by <a href="https://polaris.pw" style="color:#1edb7f;font-weight:600">Polaris</a>
+          <span style="opacity:.4">·</span>
+          <a href="https://visionnorth.vision" style="color:#0976F8;font-weight:600">VisionNorth</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Ecosistema</h4>
+        <a href="https://polaris.pw" style="color:#1edb7f">Polaris</a>
+        <a href="https://back-bone.dev" style="color:#fff">BACKBONE</a>
+        <a href="https://visionnorth.vision" style="color:#0976F8">VisionNorth</a>
+        <a href="https://padim.enmexico.casa" style="color:#f0c040">PADIM</a>
+      </div>
+      <div class="footer-col">
+        <h4>Thuban</h4>
+        <a href="/#features">Funciones</a>
+        <a href="/#pricing">Precios</a>
+        <a href="/login">Iniciar Sesión</a>
+        <a href="/signup">Crear Cuenta</a>
+      </div>
+      <div class="footer-col">
+        <h4>Enlaces</h4>
+        <a href="https://app.thuban.online" style="color:#f59e0b">app.thuban.online</a>
+        <a href="https://back-bone.dev">API Docs</a>
+        <a href="https://polaris.pw">Blog</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Thuban. Todos los derechos reservados.</p>
+      <div class="footer-heart">
+        <span>Hecho con</span>
+        <span style="color:var(--red)">♥</span>
+        <span>en México</span>
+        <span style="opacity:.4">·</span>
+        <svg width="14" height="10" viewBox="0 0 14 10" style="border-radius:1px"><rect width="14" height="10" fill="#006341"/><rect width="4.67" height="10" fill="#fff"/><rect x="9.33" width="4.67" height="10" fill="#ce1126"/></svg>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  'use strict';
+
+  // --- Hamburger Menu ---
+  var hamburger = document.getElementById('hamburger');
+  var mobileMenu = document.getElementById('mobileMenu');
+  var mobileOverlay = document.getElementById('mobileOverlay');
+
+  function toggleMenu() {
+    hamburger.classList.toggle('active');
+    mobileMenu.classList.toggle('open');
+    mobileOverlay.classList.toggle('open');
+    hamburger.setAttribute('aria-expanded', hamburger.classList.contains('active'));
+  }
+
+  if (hamburger && mobileMenu) {
+    hamburger.addEventListener('click', toggleMenu);
+    if (mobileOverlay) mobileOverlay.addEventListener('click', toggleMenu);
+    mobileMenu.querySelectorAll('a').forEach(function(a) {
+      a.addEventListener('click', toggleMenu);
+    });
+  }
+
+  // --- Scroll Header ---
+  var header = document.getElementById('header');
+  var lastScroll = 0;
+  function onScroll() {
+    var y = window.scrollY;
+    if (y > 30) {
+      header.classList.add('header-scrolled');
+    } else {
+      header.classList.remove('header-scrolled');
+    }
+    lastScroll = y;
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  // --- Hero Stars ---
+  var heroStars = document.getElementById('heroStars');
+  if (heroStars) {
+    var starCount = 60;
+    var fragment = document.createDocumentFragment();
+    for (var i = 0; i < starCount; i++) {
+      var star = document.createElement('div');
+      star.className = 'hero-star';
+      var size = Math.random();
+      if (size > 0.85) star.classList.add('gold');
+      else if (size > 0.7) star.classList.add('blue');
+      star.style.left = (Math.random() * 100) + '%';
+      star.style.top = (Math.random() * 100) + '%';
+      star.style.setProperty('--dur', (3 + Math.random() * 4) + 's');
+      star.style.setProperty('--del', (Math.random() * 5) + 's');
+      if (size < 0.3) star.style.width = '2px';
+      fragment.appendChild(star);
+    }
+    heroStars.appendChild(fragment);
+  }
+
+  // --- Intersection Observer (Reveal) ---
+  var revealElements = document.querySelectorAll('.reveal.pre-animate');
+  if (revealElements.length > 0 && 'IntersectionObserver' in window) {
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.remove('pre-animate');
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+    revealElements.forEach(function(el) {
+      observer.observe(el);
+    });
+  } else {
+    revealElements.forEach(function(el) {
+      el.classList.remove('pre-animate');
+      el.classList.add('visible');
+    });
+  }
+
+  // --- Chat Demo ---
+  var chatInput = document.getElementById('chatInput');
+  var chatSend = document.getElementById('chatSend');
+  var chatMessages = document.getElementById('chatMessages');
+
+  var botResponses = [
+    '¡Excelente pregunta! Con Thuban puedes analizar el valor de mercado de cualquier propiedad en segundos. Solo comparte la dirección y te doy un estimado basado en datos de BACKBONE.',
+    'Por supuesto. Aquí tienes un análisis de tendencias para CDMX:\n\n📈 Precio m² promedio: $48,500 MXN\n📊 Demanda: +23% vs trimestre anterior\n🏘️ Zonas con mayor plusvalía: Polanco, Santa Fe, Lomas, Roma-Condesa\n\n¿Quieres que profundice en alguna zona?',
+    'Claro, te preparo una estrategia de negociación para esa propiedad:\n\n1️⃣ Precio de oferta sugerido: 8-12% abajo del listado\n2️⃣ Puntos clave a negociar: tiempos de entrega, acabados, estacionamiento\n3️⃣ Argumentos de valor: plusvalía de la zona, cercanía a servicios\n\n¿Te envío el plan detallado por correo?'
+  ];
+  var botResponseIndex = 0;
+
+  function addBotTyping() {
+    var typingDiv = document.createElement('div');
+    typingDiv.className = 'chat-msg bot';
+    typingDiv.id = 'typingIndicator';
+    typingDiv.innerHTML = '<div class="chat-avatar bot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><div class="chat-bubble bot"><div class="chat-typing"><span></span><span></span><span></span></div></div>';
+    chatMessages.appendChild(typingDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function removeBotTyping() {
+    var typing = document.getElementById('typingIndicator');
+    if (typing) typing.remove();
+  }
+
+  function addUserMessage(text) {
+    var div = document.createElement('div');
+    div.className = 'chat-msg user';
+    div.innerHTML = '<div class="chat-avatar user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div class="chat-bubble user">' + escapeHtml(text) + '</div>';
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function addBotMessage(text) {
+    removeBotTyping();
+    var div = document.createElement('div');
+    div.className = 'chat-msg bot';
+    div.innerHTML = '<div class="chat-avatar bot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><div class="chat-bubble bot">' + text.replace(/\n/g, '<br>') + '</div>';
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function escapeHtml(str) {
+    var div = document.createElement('div');
+    div.appendChild(document.createTextNode(str));
+    return div.innerHTML;
+  }
+
+  function sendMessage() {
+    var text = chatInput.value.trim();
+    if (!text) return;
+    addUserMessage(text);
+    chatInput.value = '';
+    chatSend.classList.remove('active');
+
+    addBotTyping();
+    var response = botResponses[botResponseIndex % botResponses.length];
+    botResponseIndex++;
+    setTimeout(function() {
+      addBotMessage(response);
+    }, 1200 + Math.random() * 800);
+  }
+
+  if (chatInput && chatSend && chatMessages) {
+    chatInput.addEventListener('input', function() {
+      if (this.value.trim()) {
+        chatSend.classList.add('active');
+      } else {
+        chatSend.classList.remove('active');
+      }
+    });
+    chatSend.addEventListener('click', sendMessage);
+    chatInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+  }
+
+  // --- Pricing Toggle ---
+  var toggleContainer = document.getElementById('pricingToggle');
+  if (toggleContainer) {
+    var toggleBtns = toggleContainer.querySelectorAll('button');
+    var prices = document.querySelectorAll('.pricing-price');
+
+    toggleBtns.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        toggleBtns.forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        var period = btn.getAttribute('data-period');
+        var label = period === 'annual' ? '/mes' : '/mes';
+        prices.forEach(function(price) {
+          var val = price.getAttribute('data-' + period);
+          if (val) {
+            price.innerHTML = val + ' <span>' + label + '</span>';
+          }
+        });
+      });
+    });
+  }
+})();
+</script>
+</body>
+</html>

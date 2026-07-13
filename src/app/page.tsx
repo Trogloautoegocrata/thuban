@@ -1,106 +1,114 @@
 "use client";
 
-import { Star, Sparkles, ArrowRight, MessageSquare, TrendingUp, Shield, Users, Building2, Zap, Menu, X } from "lucide-react";
+import { Star, Sparkles, ArrowRight, MessageSquare, TrendingUp, Shield, Users, Building2, Zap, Menu, X, ChevronRight, Send, Check, Loader2 } from "lucide-react";
 import { APP_CONFIG } from "@/lib/config";
-import { cn } from "@/lib/utils";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
+// ─── Header ───
 function Header() {
-  const [menuOpen, setMenuOpen] = useState(false);
-
+  const [menu, setMenu] = useState(false);
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
-      <div className="max-w-[1200px] mx-auto px-6 h-16 flex items-center justify-between">
-        <a href="/" className="flex items-center gap-2 no-underline">
-          <Star className="h-6 w-6 text-gold" />
-          <span className="font-display text-xl font-bold tracking-tight text-foreground">Thuban</span>
+    <header className="header" id="header">
+      <div className="wrap">
+        <a href="/" className="logo">
+          <Star className="star-icon" />
+          <span>Thuban</span>
         </a>
-        <nav className="hidden md:flex items-center gap-6">
-          <a href="/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors no-underline">Iniciar Sesión</a>
-          <a href="/signup">
-            <button className="text-sm font-semibold px-5 py-2.5 rounded-lg gold-gradient">Comenzar Gratis</button>
-          </a>
+        <nav className="nav-desktop">
+          <a href="#features">Funciones</a>
+          <a href="#pricing">Precios</a>
+          <a href="/login" className="nav-cta">Iniciar Sesión</a>
+          <a href="/signup"><button className="btn-primary">Comenzar Gratis</button></a>
         </nav>
-        <button className="md:hidden p-2" onClick={() => setMenuOpen(!menuOpen)} aria-label="Menú">
-          {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+        <button className="menu-btn" onClick={() => setMenu(!menu)} aria-label="Menú">
+          {menu ? <X /> : <Menu />}
         </button>
       </div>
-      {menuOpen && (
-        <div className="md:hidden border-t border-border/50 bg-card px-6 py-4 flex flex-col gap-4">
-          <a href="/login" className="text-sm text-muted-foreground no-underline" onClick={() => setMenuOpen(false)}>Iniciar Sesión</a>
-          <a href="/signup" onClick={() => setMenuOpen(false)}>
-            <button className="w-full text-sm font-semibold px-5 py-2.5 rounded-lg gold-gradient">Comenzar Gratis</button>
-          </a>
+      {menu && (
+        <div className="nav-mobile">
+          <a href="#features" onClick={() => setMenu(false)}>Funciones</a>
+          <a href="#pricing" onClick={() => setMenu(false)}>Precios</a>
+          <a href="/login" onClick={() => setMenu(false)}>Iniciar Sesión</a>
+          <a href="/signup" onClick={() => setMenu(false)}><button className="btn-primary" style={{width:'100%'}}>Comenzar Gratis</button></a>
         </div>
       )}
     </header>
   );
 }
 
+// ─── Hero ───
 function Hero() {
   return (
-    <section className="hero-gradient min-h-screen flex items-center justify-center relative overflow-hidden pt-24">
-      <div className="absolute inset-0 overflow-hidden opacity-20">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gold/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue/10 rounded-full blur-3xl" />
-      </div>
-      <div className="max-w-[1200px] mx-auto px-6 text-center relative z-10 py-24">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold/10 border border-gold/20 mb-8">
-          <Sparkles className="h-4 w-4 text-gold" />
-          <span className="text-sm text-gold">Powered by Polaris by Visionnorth</span>
+    <section className="hero hero-bg" id="hero">
+      <div className="hero-glow" />
+      <div className="hero-content">
+        <div className="hero-badge">
+          <Sparkles className="badge-icon" />
+          <span>Powered by Polaris by Visionnorth</span>
         </div>
-        <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 leading-tight">
-          Inteligencia Artificial para{" "}
-          <span className="text-gold">Bienes Raíces</span>
+        <h1 className="hero-title">
+          Inteligencia Artificial para <span className="gold">Bienes Raíces</span>
         </h1>
-        <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
-          {APP_CONFIG.slogan}. Genera descripciones, analiza mercados, mejora tus negociaciones y atiende clientes como nunca antes.
-        </p>
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <a href="/signup">
-            <button className="inline-flex items-center gap-2 h-12 px-8 rounded-xl gold-gradient text-base font-semibold">
-              Empieza con {APP_CONFIG.freeCredits} Créditos Gratis
-              <ArrowRight className="h-5 w-5" />
-            </button>
-          </a>
-          <a href="/login">
-            <button className="inline-flex items-center h-12 px-8 rounded-xl border border-border text-muted-foreground hover:text-foreground hover:border-border-light transition-colors bg-transparent text-base">
-              Ya tengo cuenta
-            </button>
-          </a>
+        <p className="hero-sub">{APP_CONFIG.slogan}. Genera descripciones, analiza mercados, mejora tus negociaciones y atiende clientes como nunca antes.</p>
+        <div className="hero-actions">
+          <a href="/signup"><button className="btn-primary btn-lg">Empieza con {APP_CONFIG.freeCredits} Créditos Gratis <ArrowRight /></button></a>
+          <a href="/login"><button className="btn-secondary btn-lg">Ya tengo cuenta</button></a>
         </div>
       </div>
     </section>
   );
 }
 
-function FeatureCard({ icon, title, description, index }: { icon: React.ReactNode; title: string; description: string; index: number }) {
+// ─── Feature Card ───
+function FeatureCard({ icon, title, desc, idx }: { icon: React.ReactNode; title: string; desc: string; idx: number }) {
   return (
-    <div className="group rounded-xl border border-border bg-card p-8 flex gap-5 hover:border-gold/20 hover:-translate-y-0.5 transition-all duration-300">
-      <div className="mt-1 text-gold flex-shrink-0">{icon}</div>
-      <div>
-        <h3 className="font-semibold text-lg mb-2">{title}</h3>
-        <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
-      </div>
+    <div className="feature-card" style={{ animationDelay: `${idx * 0.1}s` }}>
+      <div className="feature-icon">{icon}</div>
+      <h3>{title}</h3>
+      <p>{desc}</p>
     </div>
   );
 }
 
-function StatsBar() {
-  const stats = [
-    { icon: <Building2 className="h-8 w-8 text-gold" />, title: "Especializado", desc: "Sector Inmobiliario" },
-    { icon: <Zap className="h-8 w-8 text-gold" />, title: "Instantáneas", desc: "Respuestas" },
-    { icon: <Star className="h-8 w-8 text-gold" />, title: "LATAM", desc: "Mercado" },
+// ─── Features ───
+function Features() {
+  const features = [
+    { icon: <MessageSquare />, title: "Descripciones de Propiedades", desc: "Genera descripciones profesionales y atractivas para tus listings en segundos." },
+    { icon: <TrendingUp />, title: "Análisis de Mercado", desc: "Obtén insights sobre tendencias, precios y oportunidades de inversión." },
+    { icon: <Shield />, title: "Negociación Inmobiliaria", desc: "Estrategias y técnicas para cerrar los mejores tratos con confianza." },
+    { icon: <Users />, title: "Atención a Clientes", desc: "Respuestas profesionales y seguimiento efectivo para cada prospecto." },
   ];
   return (
-    <section className="py-20 border-t border-border/50">
-      <div className="max-w-[1200px] mx-auto px-6">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-12 text-center">
+    <section className="section" id="features">
+      <div className="wrap">
+        <div className="section-header">
+          <h2>4 herramientas, un solo asistente</h2>
+          <p>Todo lo que necesitas para destacar en el mercado inmobiliario mexicano y latinoamericano.</p>
+        </div>
+        <div className="features-grid">
+          {features.map((f, i) => <FeatureCard key={f.title} icon={f.icon} title={f.title} desc={f.desc} idx={i} />)}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Stats ───
+function Stats() {
+  const stats = [
+    { icon: <Building2 />, val: "101,357+", label: "Propiedades Indexadas" },
+    { icon: <Zap />, val: "10", label: "Fuentes de Datos" },
+    { icon: <Star />, val: "LATAM", label: "Mercado Especializado" },
+  ];
+  return (
+    <section className="section stats-section">
+      <div className="wrap">
+        <div className="stats-grid">
           {stats.map((s) => (
-            <div key={s.title} className="flex flex-col items-center gap-3">
-              {s.icon}
-              <div className="text-2xl font-bold">{s.title}</div>
-              <div className="text-sm text-muted-foreground">{s.desc}</div>
+            <div key={s.label} className="stat-card">
+              <div className="stat-icon">{s.icon}</div>
+              <div className="stat-val">{s.val}</div>
+              <div className="stat-label">{s.label}</div>
             </div>
           ))}
         </div>
@@ -109,60 +117,168 @@ function StatsBar() {
   );
 }
 
+// ─── Chat Demo ───
+function ChatDemo() {
+  const [messages, setMessages] = useState<{ role: string; text: string }[]>([
+    { role: "ai", text: "¡Hola! Soy Thuban, tu asistente IA para bienes raíces. ¿En qué puedo ayudarte hoy?" },
+  ]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const endRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
+
+  const handleSend = () => {
+    if (!input.trim() || loading) return;
+    const userMsg = input.trim();
+    setInput("");
+    setMessages((m) => [...m, { role: "user", text: userMsg }]);
+    setLoading(true);
+    setTimeout(() => {
+      setMessages((m) => [...m, { role: "ai", text: "Excelente pregunta. He analizado los datos del mercado inmobiliario en CDMX para tu consulta. Los precios promedio en zonas como Condesa y Roma han mostrado un incremento del 12% este trimestre. ¿Te gustaría que profundice en alguna zona en específico?" }]);
+      setLoading(false);
+    }, 1500);
+  };
+
+  return (
+    <section className="section" id="chat">
+      <div className="wrap">
+        <div className="section-header">
+          <h2>Prueba Thuban ahora</h2>
+          <p>Conversa con nuestra IA especializada en bienes raíces.</p>
+        </div>
+        <div className="chat-demo-card">
+          <div className="chat-messages">
+            {messages.map((m, i) => (
+              <div key={i} className={`chat-msg ${m.role}`}>
+                <div className="chat-avatar">{m.role === "ai" ? <Star /> : <Users />}</div>
+                <div className="chat-bubble">{m.text}</div>
+              </div>
+            ))}
+            {loading && (
+              <div className="chat-msg ai">
+                <div className="chat-avatar"><Star /></div>
+                <div className="chat-bubble loading"><Loader2 className="spin" /> Pensando...</div>
+              </div>
+            )}
+            <div ref={endRef} />
+          </div>
+          <div className="chat-input-row">
+            <input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSend()}
+              placeholder="Pregunta sobre el mercado inmobiliario..."
+              className="chat-input"
+            />
+            <button className="btn-send" onClick={handleSend} disabled={loading || !input.trim()}>
+              <Send />
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Pricing ───
+function Pricing() {
+  const plans = [
+    { name: "Free", price: "$0", desc: "Para empezar", features: ["100 consultas/mes", "1 fuente de datos", "Descripciones IA", "Soporte email"], cta: "Comenzar Gratis", featured: false },
+    { name: "Pro", price: "$299", desc: "/mes", features: ["10,000 consultas/mes", "Todas las fuentes", "Análisis de mercado", "Chat IA ilimitado", "Soporte prioritario"], cta: "Probar Gratis", featured: true },
+    { name: "Enterprise", price: "$999", desc: "/mes", features: ["Consultas ilimitadas", "API dedicada", "Integración GHL", "Onboarding personalizado", "SLA 99.9%"], cta: "Contactar", featured: false },
+  ];
+  return (
+    <section className="section" id="pricing">
+      <div className="wrap">
+        <div className="section-header">
+          <h2>Planes transparentes</h2>
+          <p>Empieza gratis y escala cuando lo necesites.</p>
+        </div>
+        <div className="pricing-grid">
+          {plans.map((p) => (
+            <div key={p.name} className={`pricing-card ${p.featured ? "featured" : ""}`}>
+              {p.featured && <div className="pricing-badge">Más popular</div>}
+              <h3>{p.name}</h3>
+              <div className="pricing-price"><span className="price-val">{p.price}</span><span className="price-desc">{p.desc}</span></div>
+              <ul className="pricing-features">{p.features.map((f) => <li key={f}><Check /> {f}</li>)}</ul>
+              <button className={`btn-${p.featured ? "primary" : "secondary"}`} style={{ width: "100%" }}>{p.cta}</button>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── CTA ───
+function CTA() {
+  return (
+    <section className="cta-section">
+      <div className="wrap">
+        <h2>¿Listo para transformar tu negocio inmobiliario?</h2>
+        <p>Únete a los profesionales que ya usan Thuban para potenciar sus resultados.</p>
+        <a href="/signup"><button className="btn-primary btn-lg">Empieza Gratis <ArrowRight /></button></a>
+      </div>
+    </section>
+  );
+}
+
+// ─── Footer ───
 function Footer() {
   return (
-    <footer className="border-t border-border/50 py-10">
-      <div className="max-w-[1200px] mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-2">
-          <Star className="h-5 w-5 text-gold" />
-          <span className="font-semibold">Thuban</span>
-          <span className="text-xs text-muted-foreground">by Polaris Visionnorth</span>
+    <footer className="footer">
+      <div className="wrap">
+        <div className="footer-main">
+          <div className="footer-brand">
+            <Star />
+            <span className="footer-name">Thuban</span>
+            <span className="footer-by">by Polaris Visionnorth</span>
+          </div>
+          <div className="footer-links">
+            <a href="https://back-bone.dev">BACKBONE</a>
+            <a href="https://polaris.pw">Polaris</a>
+            <a href="https://visionnorth.mx">VisionNorth</a>
+            <a href="https://astra.visionnorth.mx">Astra</a>
+          </div>
         </div>
-        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-          <a href="https://back-bone.dev" className="hover:text-foreground no-underline transition-colors">BACKBONE</a>
-          <a href="https://polaris.pw" className="hover:text-foreground no-underline transition-colors">Polaris</a>
-          <a href="https://visionnorth.mx" className="hover:text-foreground no-underline transition-colors">VisionNorth</a>
-          <span className="text-border">|</span>
-          <span>© {new Date().getFullYear()} Thuban</span>
+        <div className="footer-bottom">
+          <span>© {new Date().getFullYear()} Thuban. Todos los derechos reservados.</span>
+          <span className="footer-heart">Hecho con ❤️ en México</span>
         </div>
       </div>
     </footer>
   );
 }
 
+// ─── Intersection Observer ───
+function useReveal() {
+  useEffect(() => {
+    const els = document.querySelectorAll(".reveal");
+    const obs = new IntersectionObserver(
+      (entries) => entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("visible"); obs.unobserve(e.target); } }),
+      { threshold: 0.1 }
+    );
+    els.forEach((el) => obs.observe(el));
+    return () => obs.disconnect();
+  }, []);
+}
+
+// ─── Page ───
 export default function Home() {
-  const iconMap: Record<string, React.ReactNode> = {
-    MessageSquare: <MessageSquare className="h-7 w-7" />,
-    TrendingUp: <TrendingUp className="h-7 w-7" />,
-    Shield: <Shield className="h-7 w-7" />,
-    Users: <Users className="h-7 w-7" />,
-  };
-
+  useReveal();
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <>
       <Header />
-      <Hero />
-      
-      <section className="py-24">
-        <div className="max-w-[1200px] mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
-              4 herramientas, un solo asistente
-            </h2>
-            <p className="text-muted-foreground max-w-lg mx-auto leading-relaxed">
-              Todo lo que necesitas para destacar en el mercado inmobiliario mexicano y latinoamericano.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {APP_CONFIG.features.map((f, i) => (
-              <FeatureCard key={f.title} icon={iconMap[f.icon]} title={f.title} description={f.description} index={i} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <StatsBar />
+      <main>
+        <Hero />
+        <Features />
+        <Stats />
+        <ChatDemo />
+        <Pricing />
+        <CTA />
+      </main>
       <Footer />
-    </div>
+    </>
   );
 }

@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thuban — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* ===== RESET ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: #0c0c0f;
+      color: #f0f0f5;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 240px;
+      background: rgba(255,255,255,0.02);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-right: 1px solid rgba(255,255,255,0.04);
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+    }
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 1.5rem 1.5rem 1.25rem;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .sidebar-brand-icon {
+      width: 28px;
+      height: 28px;
+      flex-shrink: 0;
+    }
+    .sidebar-brand-icon svg { width: 100%; height: 100%; }
+    .sidebar-brand-text {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+    }
+    .sidebar-brand-star { color: #f59e0b; font-size: 0.875rem; margin-left: -0.25rem; }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 0.75rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      overflow-y: auto;
+    }
+    .sidebar-label {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.2);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 0.75rem 0.75rem 0.4rem;
+    }
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.7rem 0.75rem;
+      border-radius: 0.625rem;
+      color: rgba(255,255,255,0.4);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      position: relative;
+    }
+    .sidebar-link:hover {
+      color: rgba(255,255,255,0.7);
+      background: rgba(255,255,255,0.04);
+    }
+    .sidebar-link--active {
+      color: #f59e0b;
+      background: rgba(245,158,11,0.08);
+    }
+    .sidebar-link--active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 3px;
+      height: 20px;
+      background: #f59e0b;
+      border-radius: 0 3px 3px 0;
+    }
+    .sidebar-link svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      opacity: 0.6;
+      transition: opacity 0.2s ease;
+    }
+    .sidebar-link:hover svg { opacity: 0.9; }
+    .sidebar-link--active svg { opacity: 1; }
+
+    .sidebar-footer {
+      padding: 1rem 1rem;
+      border-top: 1px solid rgba(255,255,255,0.04);
+    }
+    .sidebar-credits {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0.75rem;
+      background: rgba(245,158,11,0.06);
+      border: 1px solid rgba(245,158,11,0.1);
+      border-radius: 0.625rem;
+      font-size: 0.8125rem;
+    }
+    .sidebar-credits-label { color: rgba(255,255,255,0.4); }
+    .sidebar-credits-value {
+      color: #f59e0b;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* ===== SIDEBAR OVERLAY (mobile) ===== */
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 99;
+    }
+    .sidebar-overlay--open { display: block; }
+
+    /* ===== MAIN ===== */
+    .main {
+      margin-left: 240px;
+      flex: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: margin-left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ===== HEADER ===== */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 2rem;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      background: rgba(12,12,15,0.8);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      gap: 1rem;
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .hamburger {
+      display: none;
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.5);
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0.25rem;
+      transition: color 0.2s ease;
+      line-height: 1;
+    }
+    .hamburger:hover { color: #fff; }
+    .header-greeting {
+      font-size: 0.9375rem;
+      font-weight: 500;
+    }
+    .header-greeting span { color: rgba(255,255,255,0.4); }
+    .header-greeting strong { color: #f59e0b; font-weight: 600; }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+    .header-credits {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.8125rem;
+      color: rgba(255,255,255,0.5);
+      background: rgba(255,255,255,0.03);
+      padding: 0.35rem 0.75rem;
+      border-radius: 2rem;
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+    .header-credits-value {
+      color: #f59e0b;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .header-icon-btn {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.35);
+      cursor: pointer;
+      font-size: 1.2rem;
+      padding: 0.25rem;
+      transition: color 0.2s ease;
+      position: relative;
+      line-height: 1;
+    }
+    .header-icon-btn:hover { color: rgba(255,255,255,0.65); }
+    .header-icon-btn .badge {
+      position: absolute;
+      top: -2px;
+      right: -4px;
+      width: 7px;
+      height: 7px;
+      background: #f59e0b;
+      border-radius: 50%;
+    }
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #0c0c0f;
+      font-weight: 700;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .avatar:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(245,158,11,0.25);
+    }
+
+    /* ===== DASHBOARD CONTENT ===== */
+    .dash-content {
+      padding: 2rem;
+      flex: 1;
+    }
+    .dash-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+    .dash-subtitle {
+      font-size: 0.875rem;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 2rem;
+    }
+
+    /* ===== METRICS GRID ===== */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .metric-card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+      cursor: default;
+    }
+    .metric-card:hover {
+      background: rgba(255,255,255,0.04);
+      border-color: rgba(245,158,11,0.12);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    }
+    .metric-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .metric-card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+    .metric-card-icon--gold { background: rgba(245,158,11,0.1); }
+    .metric-card-icon--blue { background: rgba(59,130,246,0.1); }
+    .metric-card-icon--green { background: rgba(34,197,94,0.1); }
+    .metric-card-icon--purple { background: rgba(168,85,247,0.1); }
+    .metric-card-change {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.2rem 0.5rem;
+      border-radius: 0.375rem;
+    }
+    .metric-card-change--up { background: rgba(34,197,94,0.12); color: #4ade80; }
+    .metric-card-change--down { background: rgba(239,68,68,0.12); color: #f87171; }
+    .metric-card-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.1;
+      margin-bottom: 0.25rem;
+    }
+    .metric-card-label {
+      font-size: 0.8125rem;
+      color: rgba(255,255,255,0.35);
+    }
+
+    /* ===== PANELS ===== */
+    .panels-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    .panel {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      transition: border-color 0.3s ease;
+    }
+    .panel:hover { border-color: rgba(245,158,11,0.08); }
+    .panel-title {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .panel-title a {
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: rgba(245,158,11,0.6);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+    .panel-title a:hover { color: #f59e0b; }
+
+    /* ===== CHAT PREVIEW ===== */
+    .chat-preview {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .chat-msg {
+      display: flex;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      background: rgba(255,255,255,0.02);
+      border-radius: 0.75rem;
+      transition: background 0.2s ease;
+    }
+    .chat-msg:hover { background: rgba(255,255,255,0.04); }
+    .chat-msg-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .chat-msg-avatar--user { background: rgba(245,158,11,0.15); color: #f59e0b; }
+    .chat-msg-avatar--ai { background: rgba(59,130,246,0.15); color: #60a5fa; }
+    .chat-msg-body { flex: 1; min-width: 0; }
+    .chat-msg-name {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 0.15rem;
+    }
+    .chat-msg-text {
+      font-size: 0.875rem;
+      color: rgba(255,255,255,0.7);
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .chat-msg-time {
+      font-size: 0.6875rem;
+      color: rgba(255,255,255,0.2);
+      flex-shrink: 0;
+    }
+
+    /* ===== ACTIVITY TIMELINE ===== */
+    .activity-list { display: flex; flex-direction: column; }
+    .activity-item {
+      display: flex;
+      gap: 0.875rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      transition: background 0.2s ease;
+      border-radius: 0.5rem;
+      margin: 0 -0.5rem;
+      padding: 0.75rem 0.5rem;
+    }
+    .activity-item:last-child { border-bottom: none; }
+    .activity-item:hover { background: rgba(255,255,255,0.02); }
+    .activity-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-top: 6px;
+      flex-shrink: 0;
+    }
+    .activity-dot--gold { background: #f59e0b; }
+    .activity-dot--blue { background: #3b82f6; }
+    .activity-dot--green { background: #22c55e; }
+    .activity-dot--purple { background: #a855f7; }
+    .activity-content { flex: 1; min-width: 0; }
+    .activity-text {
+      font-size: 0.875rem;
+      color: rgba(255,255,255,0.65);
+      line-height: 1.4;
+    }
+    .activity-text strong { color: rgba(255,255,255,0.85); font-weight: 500; }
+    .activity-time {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.2);
+      margin-top: 0.15rem;
+    }
+
+    /* ===== HAMBURGER MOBILE SIDEBAR ===== */
+    @media (max-width: 1024px) {
+      .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+      .panels-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar--open { transform: translateX(0); }
+      .main { margin-left: 0; }
+      .hamburger { display: block; }
+      .header { padding: 0.85rem 1.25rem; }
+      .dash-content { padding: 1.5rem 1.25rem; }
+      .header-greeting span { display: none; }
+      .header-credits span:not(.header-credits-value) { display: none; }
+    }
+
+    @media (max-width: 480px) {
+      .metrics-grid { grid-template-columns: 1fr; gap: 0.75rem; }
+      .header { padding: 0.75rem 1rem; }
+      .dash-content { padding: 1.25rem 1rem; }
+      .dash-title { font-size: 1.25rem; }
+      .metric-card { padding: 1.25rem; }
+      .metric-card-value { font-size: 1.5rem; }
+      .panel { padding: 1.25rem; }
+      .header-right { gap: 0.75rem; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar Overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar" role="navigation" aria-label="Navegación principal">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon">
+        <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="14" cy="14" r="12" stroke="#f59e0b" stroke-width="1.2" fill="rgba(245,158,11,0.06)" />
+          <path d="M14 6 L15.5 11 L20 11 L16.5 14 L18 19 L14 16 L10 19 L11.5 14 L8 11 L12.5 11 Z" fill="#f59e0b" opacity="0.9" />
+        </svg>
+      </div>
+      <span class="sidebar-brand-text">Thuban</span>
+      <span class="sidebar-brand-star">✦</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="sidebar-label">Menú</div>
+      <a href="#" class="sidebar-link sidebar-link--active">
+        <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="7" height="7" rx="1"/><rect x="10" y="1" width="7" height="7" rx="1"/><rect x="1" y="10" width="7" height="7" rx="1"/><rect x="10" y="10" width="7" height="7" rx="1"/></svg>
+        Inicio
+      </a>
+      <a href="#" class="sidebar-link">
+        <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H5a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z"/><path d="M7 10h4M7 6h4M7 14h2"/></svg>
+        Chat
+      </a>
+      <a href="#" class="sidebar-link">
+        <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h14M2 9h14M2 14h14"/><rect x="3" y="2" width="3" height="4" rx="0.5"/><rect x="12" y="7" width="3" height="4" rx="0.5"/><rect x="7" y="12" width="3" height="4" rx="0.5"/></svg>
+        Propiedades
+      </a>
+      <a href="#" class="sidebar-link">
+        <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 16V2h14"/><path d="M6 12l3-4 3 2 4-5"/></svg>
+        Análisis
+      </a>
+      <a href="#" class="sidebar-link">
+        <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="7"/><path d="M9 5v4l3 2"/></svg>
+        Configuración
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-credits">
+        <span class="sidebar-credits-label">Créditos</span>
+        <span class="sidebar-credits-value">240</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main" id="main">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <button class="hamburger" id="hamburgerBtn" aria-label="Abrir menú" aria-expanded="false">☰</button>
+        <div class="header-greeting">
+          <span>Buenos días, </span><strong>Juan</strong>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="header-credits">
+          <span>✦</span>
+          <span class="header-credits-value">240</span>
+          <span>créditos</span>
+        </div>
+        <button class="header-icon-btn" aria-label="Notificaciones">
+          🔔
+          <span class="badge"></span>
+        </button>
+        <div class="avatar" aria-label="Perfil de usuario" role="button" tabindex="0">J</div>
+      </div>
+    </header>
+
+    <!-- Dashboard Content -->
+    <main class="dash-content">
+      <h1 class="dash-title">Dashboard</h1>
+      <p class="dash-subtitle">Resumen de tu actividad en Thuban</p>
+
+      <!-- Metrics -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-card-header">
+            <div class="metric-card-icon metric-card-icon--gold">✦</div>
+            <span class="metric-card-change metric-card-change--up">+12%</span>
+          </div>
+          <div class="metric-card-value">240</div>
+          <div class="metric-card-label">Créditos usados</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-card-header">
+            <div class="metric-card-icon metric-card-icon--blue">🏠</div>
+            <span class="metric-card-change metric-card-change--up">+8%</span>
+          </div>
+          <div class="metric-card-value">1,247</div>
+          <div class="metric-card-label">Propiedades analizadas</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-card-header">
+            <div class="metric-card-icon metric-card-icon--green">💬</div>
+            <span class="metric-card-change metric-card-change--up">+23%</span>
+          </div>
+          <div class="metric-card-value">89</div>
+          <div class="metric-card-label">Conversaciones</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-card-header">
+            <div class="metric-card-icon metric-card-icon--purple">⏱</div>
+            <span class="metric-card-change metric-card-change--up">+18%</span>
+          </div>
+          <div class="metric-card-value">32h</div>
+          <div class="metric-card-label">Ahorro de tiempo</div>
+        </div>
+      </div>
+
+      <!-- Panels -->
+      <div class="panels-grid">
+        <!-- Chat Preview -->
+        <section class="panel">
+          <div class="panel-title">
+            <span>Chat rápido</span>
+            <a href="#">Ver todas →</a>
+          </div>
+          <div class="chat-preview">
+            <div class="chat-msg">
+              <div class="chat-msg-avatar chat-msg-avatar--user">J</div>
+              <div class="chat-msg-body">
+                <div class="chat-msg-name">Tú</div>
+                <div class="chat-msg-text">¿Cuáles son las mejores zonas para invertir en CDMX este trimestre?</div>
+              </div>
+              <div class="chat-msg-time">10:32</div>
+            </div>
+            <div class="chat-msg">
+              <div class="chat-msg-avatar chat-msg-avatar--ai">T</div>
+              <div class="chat-msg-body">
+                <div class="chat-msg-name">Thuban AI</div>
+                <div class="chat-msg-text">Basado en tendencias de precios y plusvalía, las zonas más prometedoras son: Benito Juárez, Cuauhtémoc (zona norte) y Miguel Hidalgo (Polanco, Lomas). ¿Quieres que profundice en alguna?</div>
+              </div>
+              <div class="chat-msg-time">10:33</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Activity Timeline -->
+        <section class="panel">
+          <div class="panel-title">
+            <span>Actividad reciente</span>
+            <a href="#">Ver todo →</a>
+          </div>
+          <div class="activity-list">
+            <div class="activity-item">
+              <div class="activity-dot activity-dot--gold"></div>
+              <div class="activity-content">
+                <div class="activity-text"><strong>Análisis completado</strong> — 12 propiedades en Polanco</div>
+                <div class="activity-time">Hace 15 minutos</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot activity-dot--blue"></div>
+              <div class="activity-content">
+                <div class="activity-text"><strong>Informe generado</strong> — Comparativa de precios por colonia</div>
+                <div class="activity-time">Hace 1 hora</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot activity-dot--green"></div>
+              <div class="activity-content">
+                <div class="activity-text"><strong>Conversación archivada</strong> — Consulta sobre créditos hipotecarios</div>
+                <div class="activity-time">Hace 3 horas</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot activity-dot--purple"></div>
+              <div class="activity-content">
+                <div class="activity-text"><strong>Exportación realizada</strong> — 45 propiedades a CSV</div>
+                <div class="activity-time">Hace 5 horas</div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    (function() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      const hamburger = document.getElementById('hamburgerBtn');
+
+      function openSidebar() {
+        sidebar.classList.add('sidebar--open');
+        overlay.classList.add('sidebar-overlay--open');
+        hamburger.setAttribute('aria-expanded', 'true');
+        hamburger.setAttribute('aria-label', 'Cerrar menú');
+      }
+
+      function closeSidebar() {
+        sidebar.classList.remove('sidebar--open');
+        overlay.classList.remove('sidebar-overlay--open');
+        hamburger.setAttribute('aria-expanded', 'false');
+        hamburger.setAttribute('aria-label', 'Abrir menú');
+      }
+
+      hamburger.addEventListener('click', function() {
+        const isOpen = sidebar.classList.contains('sidebar--open');
+        isOpen ? closeSidebar() : openSidebar();
+      });
+
+      overlay.addEventListener('click', closeSidebar);
+
+      // Close sidebar on Escape
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && sidebar.classList.contains('sidebar--open')) {
+          closeSidebar();
+        }
+      });
+
+      // Active link highlight
+      document.querySelectorAll('.sidebar-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+          document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('sidebar-link--active'));
+          this.classList.add('sidebar-link--active');
+          // Close sidebar on mobile after navigation
+          if (window.innerWidth <= 768) closeSidebar();
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
