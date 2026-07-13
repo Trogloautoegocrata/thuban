@@ -19,6 +19,14 @@
   --font-mono: "JetBrains Mono", monospace;
 }
 
+@layer utilities {
+  .text-gold { color: #f59e0b; }
+  .bg-gold { background: #f59e0b; }
+  .border-gold { border-color: #f59e0b; }
+  .text-blue { color: #759ce7; }
+  .bg-blue { background: #759ce7; }
+}
+
 :root {
   --background: #0c0c0f;
   --foreground: #f0f0f5;
