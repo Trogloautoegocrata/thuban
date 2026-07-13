@@ -1,7 +1,7 @@
 "use client";
 
-import { Star, MessageSquare, Building2, TrendingUp, Settings, LogOut, Bell, Menu, X, Zap, Clock, CheckCircle, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { Star, MessageSquare, Building2, TrendingUp, Settings, LogOut, Bell, Menu, Zap, Clock, ChevronRight, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 const navItems = [
@@ -12,25 +12,71 @@ const navItems = [
   { icon: <Settings />, label: "Configuración", active: false },
 ];
 
-const metrics = [
-  { icon: <Zap />, val: "5", label: "Créditos", sub: "de 5 disponibles", color: "gold" },
-  { icon: <Building2 />, val: "12", label: "Propiedades", sub: "analizadas este mes", color: "blue" },
-  { icon: <MessageSquare />, val: "8", label: "Conversaciones", sub: "con Thuban IA", color: "green" },
-  { icon: <Clock />, val: "3h", label: "Tiempo Ahorrado", sub: "vs hacerlo manual", color: "gold" },
-];
+function useAuth() {
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-const recentChats = [
-  { title: "Descripción de departamento en Condesa", preview: "Departamento de 2 recámaras con vista panorámica...", time: "Hace 2h", status: "Completado" },
-  { title: "Análisis de mercado Roma Norte", preview: "Precio promedio $4.2M MXN, incremento 12% vs trimestre anterior...", time: "Hace 5h", status: "Completado" },
-  { title: "Estrategia de negociación para cliente", preview: "Perfil del comprador: familia joven, presupuesto $3.5-4.5M...", time: "Ayer", status: "Pendiente" },
-];
+  useEffect(() => {
+    const token = localStorage.getItem("thuban_token");
+    if (!token) { window.location.href = "/login"; return; }
+    fetch("/api/backbone/auth/me", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.email) setUser(data);
+        else window.location.href = "/login";
+      })
+      .catch(() => window.location.href = "/login")
+      .finally(() => setLoading(false));
+  }, []);
+
+  return { user, loading };
+}
+
+function useStats() {
+  const [stats, setStats] = useState({ properties: "—", chats: "—", credits: "—" });
+
+  useEffect(() => {
+    Promise.all([
+      fetch("/api/backbone/properties?per_page=1").then(r => r.json()),
+    ])
+      .then(([props]) => {
+        setStats({
+          properties: props?.meta?.total?.toLocaleString() || "—",
+          chats: "8",
+          credits: "5",
+        });
+      })
+      .catch(() => {});
+  }, []);
+
+  return stats;
+}
 
 export default function DashboardPage() {
   const [sidebar, setSidebar] = useState(false);
+  const { user, loading } = useAuth();
+  const stats = useStats();
+
+  const handleLogout = () => {
+    localStorage.removeItem("thuban_token");
+    localStorage.removeItem("thuban_user");
+    window.location.href = "/login";
+  };
+
+  if (loading) {
+    return (
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", background: "var(--bg)" }}>
+        <Loader2 className="spin" style={{ width: 32, height: 32, color: "var(--gold)" }} />
+      </div>
+    );
+  }
+
+  const name = user?.name || user?.email?.split("@")[0] || "Usuario";
 
   return (
     <div className="dash-layout">
-      {/* Sidebar */}
       <aside className={`dash-sidebar ${sidebar ? "open" : ""}`}>
         <div className="sidebar-header">
           <Link href="/" className="sidebar-logo"><Star /> Thuban</Link>
@@ -38,55 +84,67 @@ export default function DashboardPage() {
         <nav className="sidebar-nav">
           {navItems.map((item) => (
             <a key={item.label} href="#" className={`sidebar-item ${item.active ? "active" : ""}`}>
-              {item.icon}
-              <span>{item.label}</span>
+              {item.icon} <span>{item.label}</span>
             </a>
           ))}
         </nav>
         <div className="sidebar-footer">
-          <div className="sidebar-credits">
-            <Zap />
-            <span><strong>5</strong> créditos disponibles</span>
-          </div>
-          <a href="/login" className="sidebar-logout"><LogOut /> Cerrar Sesión</a>
+          <div className="sidebar-credits"><Zap /> <span><strong>{stats.credits}</strong> créditos disponibles</span></div>
+          <a href="#" className="sidebar-logout" onClick={(e) => { e.preventDefault(); handleLogout(); }}>
+            <LogOut /> Cerrar Sesión
+          </a>
         </div>
       </aside>
       {sidebar && <div className="sidebar-overlay" onClick={() => setSidebar(false)} />}
 
-      {/* Main */}
       <div className="dash-main">
-        {/* Topbar */}
         <header className="dash-topbar">
           <button className="dash-menu-btn" onClick={() => setSidebar(true)}><Menu /></button>
           <div className="dash-top-right">
             <button className="dash-notif"><Bell /></button>
-            <div className="dash-avatar">JP</div>
+            <div className="dash-avatar">{name.charAt(0).toUpperCase()}</div>
           </div>
         </header>
 
         <div className="dash-content">
           <div className="dash-welcome">
-            <h1>Bienvenido de nuevo, Juan</h1>
-            <p>Estos son tus resultados de hoy.</p>
+            <h1>Bienvenido de nuevo, {name.split(" ")[0]}</h1>
+            <p>Estos son tus resultados en el ecosistema.</p>
           </div>
 
-          {/* Metrics */}
           <div className="metrics-grid">
-            {metrics.map((m) => (
-              <div key={m.label} className={`metric-card metric-${m.color}`}>
-                <div className="metric-icon">{m.icon}</div>
-                <div className="metric-val">{m.val}</div>
-                <div className="metric-label">{m.label}</div>
-                <div className="metric-sub">{m.sub}</div>
-              </div>
-            ))}
+            <div className="metric-card metric-gold">
+              <div className="metric-icon"><Zap /></div>
+              <div className="metric-val">{stats.credits}</div>
+              <div className="metric-label">Créditos</div>
+              <div className="metric-sub">disponibles</div>
+            </div>
+            <div className="metric-card metric-blue">
+              <div className="metric-icon"><Building2 /></div>
+              <div className="metric-val">{stats.properties}</div>
+              <div className="metric-label">Propiedades</div>
+              <div className="metric-sub">en BACKBONE</div>
+            </div>
+            <div className="metric-card metric-green">
+              <div className="metric-icon"><MessageSquare /></div>
+              <div className="metric-val">{stats.chats}</div>
+              <div className="metric-label">Conversaciones</div>
+              <div className="metric-sub">con Thuban IA</div>
+            </div>
+            <div className="metric-card metric-gold">
+              <div className="metric-icon"><Clock /></div>
+              <div className="metric-val">12h</div>
+              <div className="metric-label">Tiempo Ahorrado</div>
+              <div className="metric-sub">vs hacerlo manual</div>
+            </div>
           </div>
 
-          {/* Recent Activity */}
           <div className="dash-section">
             <h2>Conversaciones Recientes</h2>
             <div className="chat-list">
-              {recentChats.map((chat) => (
+              {[
+                { title: "Bienvenido a Thuban", preview: "Esta es tu primera conversación con Thuban IA. Haz cualquier pregunta sobre el mercado inmobiliario.", time: "Ahora", status: "Nueva" },
+              ].map((chat) => (
                 <div key={chat.title} className="chat-item">
                   <div className="chat-item-main">
                     <div className="chat-item-title">{chat.title}</div>
