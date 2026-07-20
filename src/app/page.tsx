@@ -95,9 +95,21 @@ function Features() {
 
 // ─── Stats ───
 function Stats() {
+  const [data, setData] = useState({ total: "101,357+", sources: "10" });
+  useEffect(() => {
+    fetch("/api/backbone/properties?per_page=1")
+      .then(r => r.json())
+      .then(d => {
+        if (d?.meta?.total) setData({
+          total: d.meta.total.toLocaleString() + "+",
+          sources: (d.meta.sources?.length || 10).toString(),
+        });
+      })
+      .catch(() => {});
+  }, []);
   const stats = [
-    { icon: <Building2 />, val: "101,357+", label: "Propiedades Indexadas" },
-    { icon: <Zap />, val: "10", label: "Fuentes de Datos" },
+    { icon: <Building2 />, val: data.total, label: "Propiedades Indexadas" },
+    { icon: <Zap />, val: data.sources, label: "Fuentes de Datos" },
     { icon: <Star />, val: "LATAM", label: "Mercado Especializado" },
   ];
   return (
@@ -128,16 +140,27 @@ function ChatDemo() {
 
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!input.trim() || loading) return;
     const userMsg = input.trim();
     setInput("");
-    setMessages((m) => [...m, { role: "user", text: userMsg }]);
+    const updatedMessages = [...messages, { role: "user", text: userMsg }];
+    setMessages(updatedMessages);
     setLoading(true);
-    setTimeout(() => {
-      setMessages((m) => [...m, { role: "ai", text: "Excelente pregunta. He analizado los datos del mercado inmobiliario en CDMX para tu consulta. Los precios promedio en zonas como Condesa y Roma han mostrado un incremento del 12% este trimestre. ¿Te gustaría que profundice en alguna zona en específico?" }]);
-      setLoading(false);
-    }, 1500);
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: updatedMessages.map(m => ({ role: m.role, content: m.text })),
+        }),
+      });
+      const data = await res.json();
+      setMessages((m) => [...m, { role: "ai", text: data.reply || "Lo siento, no pude procesar tu solicitud." }]);
+    } catch {
+      setMessages((m) => [...m, { role: "ai", text: "Error de conexión. Intenta de nuevo." }]);
+    }
+    setLoading(false);
   };
 
   return (
@@ -202,7 +225,13 @@ function Pricing() {
               <h3>{p.name}</h3>
               <div className="pricing-price"><span className="price-val">{p.price}</span><span className="price-desc">{p.desc}</span></div>
               <ul className="pricing-features">{p.features.map((f) => <li key={f}><Check /> {f}</li>)}</ul>
-              <button className={`btn-${p.featured ? "primary" : "secondary"}`} style={{ width: "100%" }}>{p.cta}</button>
+              {p.name === "Enterprise" ? (
+                <button className="btn-secondary" style={{ width: "100%" }}>{p.cta}</button>
+              ) : (
+                <a href="/signup" style={{ width: "100%" }}>
+                  <button className={`btn-${p.featured ? "primary" : "secondary"}`} style={{ width: "100%" }}>{p.cta}</button>
+                </a>
+              )}
             </div>
           ))}
         </div>

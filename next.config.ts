@@ -2,7 +2,10 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    domains: ["localhost", "api.back-bone.dev"],
+    remotePatterns: [
+      { protocol: "https", hostname: "api.back-bone.dev" },
+      { protocol: "http", hostname: "localhost" },
+    ],
   },
   async rewrites() {
     return [
