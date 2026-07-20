@@ -4,13 +4,13 @@ import { Star, MessageSquare, Building2, TrendingUp, Settings, LogOut, Bell, Men
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 
-type Section = "inicio" | "chat" | "propiedades" | "analisis" | "configuracion";
+type Section = "chat" | "propiedades" | "analisis" | "info" | "configuracion";
 
 const navItems: { id: Section; icon: React.ReactNode; label: string }[] = [
-  { id: "inicio", icon: <Star />, label: "Inicio" },
   { id: "chat", icon: <MessageSquare />, label: "Chat" },
   { id: "propiedades", icon: <Building2 />, label: "Propiedades" },
   { id: "analisis", icon: <TrendingUp />, label: "Análisis" },
+  { id: "info", icon: <Star />, label: "Info" },
   { id: "configuracion", icon: <Settings />, label: "Configuración" },
 ];
 
@@ -246,14 +246,174 @@ function PropertiesView() {
 
 /* ─── Analysis View ─── */
 function AnalysisView() {
+  const [marketData, setMarketData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [zone, setZone] = useState("");
+
+  useEffect(() => {
+    fetch("/api/market/trends")
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) setMarketData(data.market);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleSearch = () => {
+    setLoading(true);
+    fetch(`/api/market/trends?zone=${encodeURIComponent(zone)}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) setMarketData(data.market);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  };
+
+  const fmt = (n: number) => "$" + Math.round(n).toLocaleString("es-MX") + " MXN";
+
   return (
     <div className="dash-section">
-      <div style={{ textAlign: "center", padding: "3rem 0", color: "var(--color-muted)" }}>
-        <TrendingUp style={{ width: 48, height: 48, margin: "0 auto 1rem", opacity: 0.3 }} />
-        <p>Análisis de mercado avanzado próximamente.</p>
-        <p style={{ fontSize: "0.85rem", marginTop: "0.5rem" }}>Podrás analizar tendencias de precios, plusvalía y oportunidades de inversión.</p>
+      <div style={{ marginBottom: "1.5rem" }}>
+        <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem" }}>
+          <input
+            value={zone}
+            onChange={(e) => setZone(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+            placeholder="Buscar por zona (colonia, municipio)..."
+            className="form-input"
+            style={{ flex: 1, background: "var(--color-card)", borderColor: "var(--color-border)" }}
+          />
+          <button className="btn-primary" onClick={handleSearch} style={{ padding: "0.5rem 1rem" }}>
+            Analizar
+          </button>
+        </div>
       </div>
+
+      {loading ? (
+        <div style={{ textAlign: "center", padding: "3rem 0" }}>
+          <Loader2 className="spin" style={{ width: 32, height: 32, color: "var(--color-gold)", margin: "0 auto" }} />
+        </div>
+      ) : marketData ? (
+        <>
+          <div className="metrics-grid" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))" }}>
+            <div className="metric-card" style={{ background: "var(--color-card)", border: "1px solid var(--color-border)", borderRadius: 12, padding: "1.25rem" }}>
+              <div style={{ fontSize: "0.75rem", color: "var(--color-muted)", fontWeight: 500, marginBottom: "0.4rem", textTransform: "uppercase", letterSpacing: "0.04em" }}>Propiedades</div>
+              <div style={{ fontFamily: "var(--font-display, Space Grotesk)", fontSize: "1.75rem", fontWeight: 700, color: "var(--color-gold)" }}>{marketData.total_properties?.toLocaleString()}</div>
+            </div>
+            <div className="metric-card" style={{ background: "var(--color-card)", border: "1px solid var(--color-border)", borderRadius: 12, padding: "1.25rem" }}>
+              <div style={{ fontSize: "0.75rem", color: "var(--color-muted)", fontWeight: 500, marginBottom: "0.4rem", textTransform: "uppercase", letterSpacing: "0.04em" }}>Precio Promedio</div>
+              <div style={{ fontFamily: "var(--font-display, Space Grotesk)", fontSize: "1.75rem", fontWeight: 700, color: "var(--color-gold)" }}>{fmt(marketData.analysis?.avg_price || 0)}</div>
+            </div>
+            <div className="metric-card" style={{ background: "var(--color-card)", border: "1px solid var(--color-border)", borderRadius: 12, padding: "1.25rem" }}>
+              <div style={{ fontSize: "0.75rem", color: "var(--color-muted)", fontWeight: 500, marginBottom: "0.4rem", textTransform: "uppercase", letterSpacing: "0.04em" }}>Mediana</div>
+              <div style={{ fontFamily: "var(--font-display, Space Grotesk)", fontSize: "1.75rem", fontWeight: 700, color: "var(--color-gold)" }}>{fmt(marketData.analysis?.median_price || 0)}</div>
+            </div>
+            <div className="metric-card" style={{ background: "var(--color-card)", border: "1px solid var(--color-border)", borderRadius: 12, padding: "1.25rem" }}>
+              <div style={{ fontSize: "0.75rem", color: "var(--color-muted)", fontWeight: 500, marginBottom: "0.4rem", textTransform: "uppercase", letterSpacing: "0.04em" }}>Rango</div>
+              <div style={{ fontFamily: "var(--font-display, Space Grotesk)", fontSize: "1.1rem", fontWeight: 600, color: "var(--color-fg)" }}>
+                {fmt(marketData.analysis?.min_price || 0)} — {fmt(marketData.analysis?.max_price || 0)}
+              </div>
+            </div>
+          </div>
+
+          {marketData.distribution?.by_type && (
+            <div className="metric-card" style={{ marginTop: "1rem", background: "var(--color-card)", border: "1px solid var(--color-border)", borderRadius: 12, padding: "1.25rem" }}>
+              <h3 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "0.75rem" }}>Distribución por Tipo</h3>
+              <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+                {Object.entries(marketData.distribution.by_type).map(([type, count]: any) => (
+                  <span key={type} style={{ background: "rgba(245,158,11,0.1)", color: "var(--color-gold)", padding: "0.3rem 0.75rem", borderRadius: 100, fontSize: "0.8rem" }}>
+                    {type}: {count}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </>
+      ) : (
+        <div style={{ textAlign: "center", padding: "3rem 0", color: "var(--color-muted)" }}>
+          <TrendingUp style={{ width: 48, height: 48, margin: "0 auto 1rem", opacity: 0.3 }} />
+          <p>No hay datos disponibles para esta zona.</p>
+        </div>
+      )}
     </div>
+  );
+}
+
+/* ─── Info View ─── */
+function InfoView({ user, stats }: { user: any; stats: any }) {
+  const name = user?.name || user?.email?.split("@")[0] || "Usuario";
+  const firstName = name.split(" ")[0];
+
+  return (
+    <>
+      <div className="dash-welcome">
+        <h1>Bienvenido de nuevo, {firstName}</h1>
+        <p>Estos son tus resultados en el ecosistema.</p>
+      </div>
+
+      <div className="metrics-grid">
+        <div className="metric-card metric-gold">
+          <div className="metric-icon"><Zap /></div>
+          <div className="metric-val">{stats.credits}</div>
+          <div className="metric-label">Créditos</div>
+          <div className="metric-sub">disponibles</div>
+        </div>
+        <div className="metric-card metric-blue">
+          <div className="metric-icon"><Building2 /></div>
+          <div className="metric-val">{stats.properties}</div>
+          <div className="metric-label">Propiedades</div>
+          <div className="metric-sub">en BACKBONE</div>
+        </div>
+        <div className="metric-card metric-green">
+          <div className="metric-icon"><MessageSquare /></div>
+          <div className="metric-val">{stats.chats}</div>
+          <div className="metric-label">Conversaciones</div>
+          <div className="metric-sub">con Thuban IA</div>
+        </div>
+        <div className="metric-card metric-gold">
+          <div className="metric-icon"><Clock /></div>
+          <div className="metric-val">12h</div>
+          <div className="metric-label">Tiempo Ahorrado</div>
+          <div className="metric-sub">vs hacerlo manual</div>
+        </div>
+      </div>
+
+      <div className="dash-section">
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
+          <h2 style={{ fontSize: "1.1rem", fontWeight: 700 }}>Conversaciones Recientes</h2>
+          <button
+            onClick={() => {/* navigate to chat handled by parent */}}
+            style={{ background: "none", border: "none", color: "var(--color-gold)", cursor: "pointer", fontSize: "0.85rem", fontFamily: "inherit" }}
+          >
+            Ir al Chat →
+          </button>
+        </div>
+        <div className="chat-list">
+          {[
+            { title: "Bienvenido a Thuban", preview: "Esta es tu primera conversación con Thuban IA. Haz cualquier pregunta sobre el mercado inmobiliario.", time: "Ahora", status: "Nueva" },
+          ].map((chat) => (
+            <div
+              key={chat.title}
+              className="chat-item"
+              onClick={() => window.location.href = "#chat"}
+              style={{ cursor: "pointer" }}
+            >
+              <div className="chat-item-main">
+                <div className="chat-item-title">{chat.title}</div>
+                <div className="chat-item-preview">{chat.preview}</div>
+              </div>
+              <div className="chat-item-meta">
+                <span className="chat-item-time">{chat.time}</span>
+                <span className={`chat-item-status status-${chat.status.toLowerCase()}`}>{chat.status}</span>
+                <ChevronRight />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -283,7 +443,7 @@ function SettingsView({ user }: { user: any }) {
 /* ─── Dashboard Page ─── */
 export default function DashboardPage() {
   const [sidebar, setSidebar] = useState(false);
-  const [activeSection, setActiveSection] = useState<Section>("inicio");
+  const [activeSection, setActiveSection] = useState<Section>("chat");
   const { user, loading } = useAuth();
   const stats = useStats();
 
@@ -295,7 +455,7 @@ export default function DashboardPage() {
 
   const handleNavigate = (section: Section) => {
     setActiveSection(section);
-    setSidebar(false); // close mobile sidebar on nav
+    setSidebar(false);
   };
 
   if (loading) {
@@ -356,83 +516,12 @@ export default function DashboardPage() {
         </header>
 
         <div className="dash-content">
-          {/* ─── INICIO ─── */}
-          {activeSection === "inicio" && (
-            <>
-              <div className="dash-welcome">
-                <h1>Bienvenido de nuevo, {firstName}</h1>
-                <p>Estos son tus resultados en el ecosistema.</p>
-              </div>
-
-              <div className="metrics-grid">
-                <div className="metric-card metric-gold">
-                  <div className="metric-icon"><Zap /></div>
-                  <div className="metric-val">{stats.credits}</div>
-                  <div className="metric-label">Créditos</div>
-                  <div className="metric-sub">disponibles</div>
-                </div>
-                <div className="metric-card metric-blue">
-                  <div className="metric-icon"><Building2 /></div>
-                  <div className="metric-val">{stats.properties}</div>
-                  <div className="metric-label">Propiedades</div>
-                  <div className="metric-sub">en BACKBONE</div>
-                </div>
-                <div className="metric-card metric-green">
-                  <div className="metric-icon"><MessageSquare /></div>
-                  <div className="metric-val">{stats.chats}</div>
-                  <div className="metric-label">Conversaciones</div>
-                  <div className="metric-sub">con Thuban IA</div>
-                </div>
-                <div className="metric-card metric-gold">
-                  <div className="metric-icon"><Clock /></div>
-                  <div className="metric-val">12h</div>
-                  <div className="metric-label">Tiempo Ahorrado</div>
-                  <div className="metric-sub">vs hacerlo manual</div>
-                </div>
-              </div>
-
-              <div className="dash-section">
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
-                  <h2 style={{ fontSize: "1.1rem", fontWeight: 700 }}>Conversaciones Recientes</h2>
-                  <button
-                    onClick={() => handleNavigate("chat")}
-                    style={{ background: "none", border: "none", color: "var(--color-gold)", cursor: "pointer", fontSize: "0.85rem", fontFamily: "inherit" }}
-                  >
-                    Ir al Chat →
-                  </button>
-                </div>
-                <div className="chat-list">
-                  {[
-                    { title: "Bienvenido a Thuban", preview: "Esta es tu primera conversación con Thuban IA. Haz cualquier pregunta sobre el mercado inmobiliario.", time: "Ahora", status: "Nueva" },
-                  ].map((chat) => (
-                    <div
-                      key={chat.title}
-                      className="chat-item"
-                      onClick={() => handleNavigate("chat")}
-                      style={{ cursor: "pointer" }}
-                    >
-                      <div className="chat-item-main">
-                        <div className="chat-item-title">{chat.title}</div>
-                        <div className="chat-item-preview">{chat.preview}</div>
-                      </div>
-                      <div className="chat-item-meta">
-                        <span className="chat-item-time">{chat.time}</span>
-                        <span className={`chat-item-status status-${chat.status.toLowerCase()}`}>{chat.status}</span>
-                        <ChevronRight />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* ─── CHAT ─── */}
+          {/* ─── CHAT (default) ─── */}
           {activeSection === "chat" && (
             <div className="dash-section">
               <div className="dash-welcome">
                 <h1>Chat con Thuban IA</h1>
-                <p>Pregunta sobre el mercado inmobiliario, propiedades, tendencias y más.</p>
+                <p>Pregunta sobre el mercado inmobiliario, propiedades, tendencias y más. Datos en tiempo real de BACKBONE.</p>
               </div>
               <ChatView />
             </div>
@@ -454,9 +543,16 @@ export default function DashboardPage() {
             <div className="dash-section">
               <div className="dash-welcome">
                 <h1>Análisis de Mercado</h1>
-                <p>Tendencias, estadísticas y oportunidades de inversión.</p>
+                <p>Tendencias, estadísticas y oportunidades de inversión. Datos en tiempo real de BACKBONE.</p>
               </div>
               <AnalysisView />
+            </div>
+          )}
+
+          {/* ─── INFO ─── */}
+          {activeSection === "info" && (
+            <div className="dash-section">
+              <InfoView user={user} stats={stats} />
             </div>
           )}
 
