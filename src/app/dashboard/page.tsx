@@ -3,6 +3,15 @@
 import { Star, MessageSquare, Building2, TrendingUp, Settings, LogOut, Bell, Menu, Zap, Clock, ChevronRight, Loader2, Send } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
+
+// Carga diferida de las capacidades (Fase 1)
+const DescribeProperty = dynamic(() => import("@/components/capacidades/DescribeProperty"), {
+  loading: () => <div className="dash-section"><div style={{ textAlign: "center", padding: "3rem" }}><Loader2 className="spin" /></div></div>,
+});
+const NegotiateStrategy = dynamic(() => import("@/components/capacidades/NegotiateStrategy"), {
+  loading: () => <div className="dash-section"><div style={{ textAlign: "center", padding: "3rem" }}><Loader2 className="spin" /></div></div>,
+});
 
 type Section = "chat" | "propiedades" | "analisis" | "info" | "configuracion";
 
@@ -590,7 +599,7 @@ export default function DashboardPage() {
         </header>
 
         <div className="dash-content">
-          {/* ─── CHAT (default) ─── */}
+          {/* ─── CHAT + CAPACIDADES ─── */}
           {activeSection === "chat" && (
             <div className="dash-section">
               <div className="dash-welcome">
@@ -647,7 +656,15 @@ export default function DashboardPage() {
                 )}
               </div>
 
-              <ChatView activeCapability={activeCapability} />
+              {/* Capacidades con UI propia (Fase 1) */}
+              {activeCapability === "describe" && <DescribeProperty />}
+              {activeCapability === "negotiate" && <NegotiateStrategy />}
+              {/* Capacidades que usan chat (Fase 0 — placeholder) */}
+              {activeCapability !== "describe" && activeCapability !== "negotiate" && (
+                <ChatView activeCapability={activeCapability} />
+              )}
+              {/* Sin capacidad seleccionada: chat general */}
+              {!activeCapability && <ChatView />}
             </div>
           )}
 
