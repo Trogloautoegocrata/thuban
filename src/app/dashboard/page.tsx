@@ -47,24 +47,40 @@ function useAuth() {
   return { user, loading };
 }
 
-/* ─── Stats Hook ─── */
+/* ─── Stats + Credits Hook ─── */
 function useStats() {
-  const [stats, setStats] = useState({ properties: "—", chats: "—", credits: "5", sources: 0 });
+  const [stats, setStats] = useState({ properties: "—", chats: "—", credits: "—", sources: 0, plan: "Free" });
 
   useEffect(() => {
-    Promise.all([
-      fetch("/api/backbone/properties?per_page=1").then(r => r.json()),
-    ])
-      .then(([props]) => {
+    async function load() {
+      // Créditos desde localforage
+      let creditsDisplay = "5";
+      let planDisplay = "Free";
+      try {
+        const { getCredits } = await import("@/lib/db/credits");
+        const userId = localStorage.getItem("thuban_user_email") || "anonymous";
+        const state = await getCredits(userId);
+        creditsDisplay = String(Math.max(0, state.total - state.used));
+        planDisplay = state.plan.charAt(0).toUpperCase() + state.plan.slice(1);
+      } catch {}
+
+      // Stats de BACKBONE
+      try {
+        const res = await fetch("/api/backbone/properties?per_page=1");
+        const props = await res.json();
         const meta = props?.meta;
         setStats({
           properties: meta?.total?.toLocaleString() || "—",
           chats: localStorage.getItem("thuban_chats_count") || "0",
-          credits: "5",
+          credits: creditsDisplay,
           sources: meta?.sources?.length || 10,
+          plan: planDisplay,
         });
-      })
-      .catch(() => {});
+      } catch {
+        setStats(prev => ({ ...prev, credits: creditsDisplay, plan: planDisplay }));
+      }
+    }
+    load();
   }, []);
 
   return stats;
@@ -478,6 +494,32 @@ export default function DashboardPage() {
     window.location.href = "/login";
   };
 
+  const handleUpgrade = async () => {
+    if (stats.plan !== "Free") return;
+    try {
+      const res = await fetch("/api/stripe/create-checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          plan: "pro",
+          email: user?.email || "",
+          userId: user?.email || "anonymous",
+        }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else if (data.demo) {
+        // Modo demo: activar plan Pro sin pago
+        const { setPlan } = await import("@/lib/db/credits");
+        await setPlan(user?.email || "anonymous", "pro");
+        window.location.reload();
+      }
+    } catch (err) {
+      console.error("Error al actualizar:", err);
+    }
+  };
+
   const handleNavigate = (section: Section) => {
     setActiveSection(section);
     setSidebar(false);
@@ -516,12 +558,19 @@ export default function DashboardPage() {
         </nav>
         <div className="sidebar-footer">
           <div className="sidebar-credits"><Zap /> <span><strong>{stats.credits}</strong> créditos disponibles</span></div>
-          <button onClick={handleLogout} className="sidebar-logout" style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: "0.8rem", display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--color-muted)", padding: 0 }}>
-            <LogOut /> Cerrar Sesión
+          <button
+            onClick={handleUpgrade}
+            className="btn-primary"
+            style={{ width: "100%", padding: "0.4rem 0.75rem", fontSize: "0.75rem", marginBottom: "0.5rem" }}
+          >
+            {stats.plan === "Free" ? "↑ Actualizar a Pro" : `✓ ${stats.plan}`}
           </button>
-        </div>
-      </aside>
-      {sidebar && <div className="sidebar-overlay" onClick={() => setSidebar(false)} />}
+          <button onClick={handleLogout} className="sidebar-logout" style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: "0.8rem", display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--color-muted)", padding: 0 }}>
+          <LogOut /> Cerrar Sesión
+          </button>
+          </div>
+          </aside>
+          {sidebar && <div className="sidebar-overlay" onClick={() => setSidebar(false)} />}
 
       {/* ─── Main Content ─── */}
       <div className="dash-main">
