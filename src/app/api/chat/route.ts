@@ -1,28 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { TOOL_DEFINITIONS, executeTool, ToolName } from "@/lib/backbone-tools";
+import { executeTool } from "@/lib/backbone-tools";
+import { assembleSystemPrompt } from "@/lib/prompts/route";
+import { ALL_TOOL_DEFINITIONS, executeThubanTool, ThubanToolName } from "@/lib/prompts/tools";
+import { addMemoryEntry } from "@/lib/prompts/memory";
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || process.env.DEEPSEEK_API_KEY || "";
 const MODEL = "deepseek/deepseek-chat";
-
-const SYSTEM_PROMPT = `Eres Thuban, un asistente de IA especializado en el mercado inmobiliario de Mexico y America Latina.
-
-CAPACIDADES (puedes usar herramientas para obtener datos en tiempo real):
-- Buscar propiedades por ubicacion, tipo, precio y caracteristicas
-- Consultar estadisticas del mercado inmobiliario
-- Obtener tendencias de precios por zona
-- Dar informacion detallada de propiedades especificas
-
-DIRECTRICES:
-- Responde SIEMPRE en espanol, con tono profesional pero amigable
-- USA las herramientas disponibles para dar respuestas con DATOS REALES
-- Cuando alguien pregunte por propiedades o mercado, USA las herramientas - no inventes datos
-- Si la herramienta devuelve datos, presentalos de forma clara y util
-- Si no encuentras datos para lo que piden, dilo honestamente
-- Se conciso: 2-4 parrafos maximo, a menos que pidan mas detalle
-- No des consejos legales o financieros vinculantes
-- Puedes mencionar que tus datos provienen del ecosistema BACKBONE (101,357+ propiedades indexadas de 10+ fuentes)
-- Para descripciones de propiedades, ofrece generarlas si te dan los datos necesarios
-- Para analisis de mercado, si no hay datos especificos de una zona, da contexto general del mercado mexicano`;
 
 interface ChatMessage {
   role: "system" | "user" | "assistant" | "tool";
@@ -34,7 +17,7 @@ interface ChatMessage {
 
 export async function POST(req: NextRequest) {
   try {
-    const { messages: rawMessages } = await req.json();
+    const { messages: rawMessages, userId, conversationId, activeCapability } = await req.json();
 
     if (!rawMessages || !Array.isArray(rawMessages) || rawMessages.length === 0) {
       return NextResponse.json({ error: "Se requiere un array de mensajes" }, { status: 400 });
@@ -44,13 +27,26 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "API de chat no configurada" }, { status: 503 });
     }
 
+    // ─── CAPA 1-4: Ensamblar system prompt desde las 5 capas ───
+    const systemPrompt = assembleSystemPrompt({
+      userId: userId || "anonymous",
+      conversationId: conversationId || "default",
+      activeCapability: activeCapability || undefined,
+    });
+
     const messages: ChatMessage[] = [
-      { role: "system", content: SYSTEM_PROMPT },
+      { role: "system", content: systemPrompt },
       ...rawMessages.map((m: any) => ({
         role: m.role === "ai" ? "assistant" : m.role,
         content: m.text || m.content || "",
       })),
     ];
+
+    // ─── Guardar el mensaje del usuario en memoria ───
+    const lastUserMsg = rawMessages.filter((m: any) => m.role === "user").pop();
+    if (lastUserMsg && userId) {
+      addMemoryEntry(userId, conversationId || "default", "user_query", lastUserMsg.text || lastUserMsg.content || "");
+    }
 
     const MAX_ROUNDS = 3;
     let currentMessages = [...messages];
@@ -60,15 +56,15 @@ export async function POST(req: NextRequest) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+          "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
           "HTTP-Referer": "https://app.thuban.online",
           "X-Title": "Thuban",
         },
         body: JSON.stringify({
           model: MODEL,
           messages: currentMessages,
-          tools: TOOL_DEFINITIONS,
-          max_tokens: 2048,
+          tools: ALL_TOOL_DEFINITIONS,
+          max_tokens: 4096,
           temperature: 0.7,
         }),
       });
@@ -93,8 +89,12 @@ export async function POST(req: NextRequest) {
       }
 
       if (!replyMessage.tool_calls || replyMessage.tool_calls.length === 0) {
+        // Guardar respuesta en memoria
+        if (userId && replyMessage.content) {
+          addMemoryEntry(userId, conversationId || "default", "assistant_reply", replyMessage.content.slice(0, 200));
+        }
         return NextResponse.json({
-          reply: replyMessage.content || "Claro, en que mas puedo ayudarte?",
+          reply: replyMessage.content || "Claro, ¿en qué más puedo ayudarte?",
           model: data.model || MODEL,
           usage: data.usage,
           rounds: round + 1,
@@ -109,7 +109,7 @@ export async function POST(req: NextRequest) {
       currentMessages.push(assistantMsg);
 
       for (const toolCall of replyMessage.tool_calls) {
-        const name = toolCall.function?.name as ToolName;
+        const name = toolCall.function?.name;
         let args: Record<string, any> = {};
 
         try {
@@ -118,7 +118,12 @@ export async function POST(req: NextRequest) {
           args = {};
         }
 
-        const result = await executeTool(name, args);
+        const result = await executeThubanTool(name, args);
+
+        // Guardar tool call en memoria
+        if (userId && name) {
+          addMemoryEntry(userId, conversationId || "default", "tool_call", `${name}: ${JSON.stringify(args).slice(0, 100)}`);
+        }
 
         currentMessages.push({
           role: "tool",
@@ -130,7 +135,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({
-      reply: "He consultado varias fuentes de datos. Quieres que profundice en algun aspecto en particular?",
+      reply: "He consultado varias fuentes de datos. ¿Quieres que profundice en algún aspecto en particular?",
       rounds: MAX_ROUNDS,
     });
 

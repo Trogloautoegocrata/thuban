@@ -6,6 +6,15 @@ import Link from "next/link";
 
 type Section = "chat" | "propiedades" | "analisis" | "info" | "configuracion";
 
+type Capability = "describe" | "valuate" | "negotiate" | "market" | null;
+
+const CAPABILITIES: { id: Capability; icon: React.ReactNode; label: string; desc: string }[] = [
+  { id: "describe", icon: <MessageSquare />, label: "Describe", desc: "Descripciones profesionales de propiedades" },
+  { id: "valuate", icon: <Star />, label: "Valúa", desc: "Valuación estimada con datos de mercado" },
+  { id: "negotiate", icon: <TrendingUp />, label: "Negocia", desc: "Estrategias de negociación con datos" },
+  { id: "market", icon: <Building2 />, label: "Mercado", desc: "Análisis de mercado por zona" },
+];
+
 const navItems: { id: Section; icon: React.ReactNode; label: string }[] = [
   { id: "chat", icon: <MessageSquare />, label: "Chat" },
   { id: "propiedades", icon: <Building2 />, label: "Propiedades" },
@@ -62,9 +71,11 @@ function useStats() {
 }
 
 /* ─── Chat Demo ─── */
-function ChatView() {
+function ChatView({ activeCapability }: { activeCapability?: Capability }) {
   const [messages, setMessages] = useState<{ role: string; text: string }[]>([
-    { role: "ai", text: "¡Hola! Soy Thuban, tu asistente IA para bienes raíces. ¿En qué puedo ayudarte hoy?" },
+    { role: "ai", text: activeCapability
+      ? getCapabilityGreeting(activeCapability)
+      : "¡Hola! Soy Thuban, tu asistente IA para bienes raíces. ¿En qué puedo ayudarte hoy?" },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -85,6 +96,9 @@ function ChatView() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           messages: updatedMessages.map(m => ({ role: m.role, content: m.text })),
+          userId: localStorage.getItem("thuban_user_email") || "anonymous",
+          conversationId: "dashboard-main",
+          activeCapability: activeCapability || undefined,
         }),
       });
       const data = await res.json();
@@ -130,6 +144,16 @@ function ChatView() {
       </div>
     </div>
   );
+}
+
+function getCapabilityGreeting(cap: Capability): string {
+  const greetings: Record<string, string> = {
+    describe: "¡Hola! Estoy listo para ayudarte a crear descripciones profesionales de propiedades. Cuéntame los datos de la propiedad: tipo, ubicación, metros, recámaras, baños, precio y características especiales. ¿Por dónde empezamos?",
+    valuate: "¡Hola! Puedo darte una estimación del valor de una propiedad basada en datos de mercado BACKBONE. ¿Qué propiedad te gustaría valuar? Dime la ubicación y algunos datos básicos.",
+    negotiate: "¡Hola! Estoy aquí para ayudarte a preparar una estrategia de negociación. Cuéntame sobre la propiedad: precio publicado, ubicación, y cualquier detalle que sepas (tiempo en el mercado, motivación del vendedor, condición de la propiedad).",
+    market: "¡Hola! Puedo analizar el mercado inmobiliario de cualquier zona de México. Dime qué colonia, municipio o ciudad te interesa y te daré datos de precios, tendencias y más.",
+  };
+  return greetings[cap || ""] || "¡Hola! Soy Thuban, tu asistente IA para bienes raíces. ¿En qué puedo ayudarte?";
 }
 
 /* ─── Properties View ─── */
@@ -444,6 +468,7 @@ function SettingsView({ user }: { user: any }) {
 export default function DashboardPage() {
   const [sidebar, setSidebar] = useState(false);
   const [activeSection, setActiveSection] = useState<Section>("chat");
+  const [activeCapability, setActiveCapability] = useState<Capability>(null);
   const { user, loading } = useAuth();
   const stats = useStats();
 
@@ -521,9 +546,59 @@ export default function DashboardPage() {
             <div className="dash-section">
               <div className="dash-welcome">
                 <h1>Chat con Thuban IA</h1>
-                <p>Pregunta sobre el mercado inmobiliario, propiedades, tendencias y más. Datos en tiempo real de BACKBONE.</p>
+                <p>Elige una herramienta o simplemente pregunta lo que necesites.</p>
               </div>
-              <ChatView />
+
+              {/* Toolbar de capacidades */}
+              <div className="capabilities-bar" style={{
+                display: "flex", gap: "0.5rem", marginBottom: "1.5rem",
+                flexWrap: "wrap", padding: "0.75rem", background: "var(--color-card)",
+                border: "1px solid var(--color-border)", borderRadius: 12,
+              }}>
+                <button
+                  onClick={() => { setActiveCapability(null); }}
+                  style={{
+                    padding: "0.5rem 1rem", borderRadius: 8, border: "1px solid var(--color-border)",
+                    background: !activeCapability ? "var(--color-gold)" : "transparent",
+                    color: !activeCapability ? "#000" : "var(--color-muted)",
+                    cursor: "pointer", fontSize: "0.8rem", fontWeight: 500,
+                    transition: "all 0.2s", fontFamily: "inherit",
+                  }}
+                >
+                  ✦ General
+                </button>
+                {CAPABILITIES.map((cap) => (
+                  <button
+                    key={cap.id}
+                    onClick={() => setActiveCapability(activeCapability === cap.id ? null : cap.id)}
+                    title={cap.desc}
+                    style={{
+                      padding: "0.5rem 1rem", borderRadius: 8, border: "1px solid var(--color-border)",
+                      background: activeCapability === cap.id ? "var(--color-gold)" : "transparent",
+                      color: activeCapability === cap.id ? "#000" : "var(--color-fg)",
+                      cursor: "pointer", fontSize: "0.8rem", fontWeight: 500,
+                      display: "flex", alignItems: "center", gap: "0.4rem",
+                      transition: "all 0.2s", fontFamily: "inherit",
+                    }}
+                  >
+                    {cap.icon} {cap.label}
+                  </button>
+                ))}
+                {activeCapability && (
+                  <button
+                    onClick={() => setActiveCapability(null)}
+                    style={{
+                      marginLeft: "auto", background: "none", border: "none",
+                      color: "var(--color-muted)", cursor: "pointer",
+                      fontSize: "0.75rem", fontFamily: "inherit",
+                    }}
+                  >
+                    ✕ Limpiar
+                  </button>
+                )}
+              </div>
+
+              <ChatView activeCapability={activeCapability} />
             </div>
           )}
 
