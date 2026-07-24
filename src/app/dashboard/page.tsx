@@ -4,6 +4,7 @@ import { Star, MessageSquare, Building2, TrendingUp, Settings, LogOut, Bell, Men
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import { Button, Input, Card } from "@/components/ui";
 
 // Carga diferida de las capacidades (Fase 1)
 const DescribeProperty = dynamic(() => import("@/components/capacidades/DescribeProperty"), {
@@ -214,7 +215,7 @@ function PropertiesView() {
     <div className="dash-section">
       <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1.5rem", flexWrap: "wrap" }}>
         <div className="form-group" style={{ flex: 1, minWidth: 200 }}>
-          <input
+            <input
             placeholder="Buscar propiedades por colonia o estado..."
             className="form-input"
             style={{ background: "var(--color-card)", borderColor: "var(--color-border)" }}
@@ -245,10 +246,10 @@ function PropertiesView() {
                 <div style={{ fontSize: "0.75rem", color: "var(--color-muted-2)", marginBottom: "0.25rem", textTransform: "uppercase" }}>
                   {p.source}
                 </div>
-                <div style={{ fontWeight: 700, fontSize: "1.1rem", marginBottom: "0.25rem", lineHeight: 1.3 }}>
+                <div style={{ fontWeight: 700, fontSize: "1.1rem", marginBottom: "0.25rem", lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {p.title?.substring(0, 60) || "Sin título"}
                 </div>
-                <div style={{ fontSize: "0.85rem", color: "var(--color-muted)", marginBottom: "0.5rem" }}>
+                <div style={{ fontSize: "0.85rem", color: "var(--color-muted)", marginBottom: "0.5rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {p.colony || p.municipality || p.state || p.address?.substring(0, 40) || "Ubicación no disponible"}
                 </div>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "0.5rem" }}>
@@ -269,23 +270,15 @@ function PropertiesView() {
           </div>
 
           <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "1rem", marginTop: "1.5rem" }}>
-            <button
-              className="btn-secondary"
-              disabled={page <= 1}
-              onClick={() => setPage(p => Math.max(1, p - 1))}
-            >
+          <Button variant="secondary" disabled={page <= 1} onClick={() => setPage(p => Math.max(1, p - 1))}>
               ← Anterior
-            </button>
+            </Button>
             <span style={{ fontSize: "0.85rem", color: "var(--color-muted)" }}>
               Página {page}
             </span>
-            <button
-              className="btn-secondary"
-              disabled={properties.length < perPage}
-              onClick={() => setPage(p => p + 1)}
-            >
+            <Button variant="secondary" disabled={properties.length < perPage} onClick={() => setPage(p => p + 1)}>
               Siguiente →
-            </button>
+            </Button>
           </div>
         </>
       )}
@@ -334,9 +327,9 @@ function AnalysisView() {
             className="form-input"
             style={{ flex: 1, background: "var(--color-card)", borderColor: "var(--color-border)" }}
           />
-          <button className="btn-primary" onClick={handleSearch} style={{ padding: "0.5rem 1rem" }}>
+          <Button variant="primary" onClick={handleSearch} size="md">
             Analizar
-          </button>
+          </Button>
         </div>
       </div>
 

@@ -1,37 +1,42 @@
-"use client";
+'use client';
 
-import { Star, Eye, EyeOff, Loader2 } from "lucide-react";
-import { useState } from "react";
-import Link from "next/link";
+import { Loader2, Eye, EyeOff } from 'lucide-react';
+import { useState } from 'react';
+import Link from 'next/link';
+import { Button, Input } from '@/components/ui';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) { setError("Completa todos los campos"); return; }
+    if (!email || !password) { setError('Completa todos los campos'); return; }
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      setError('No tienes conexión a internet. Verifica tu conexión e intenta de nuevo.');
+      return;
+    }
     setLoading(true);
-    setError("");
+    setError('');
     try {
-      const res = await fetch("/api/backbone/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch('/api/backbone/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
       if (res.ok && data.access_token) {
-        localStorage.setItem("thuban_token", data.access_token);
-        localStorage.setItem("thuban_user", JSON.stringify(data.user));
-        window.location.href = "/dashboard";
+        localStorage.setItem('thuban_token', data.access_token);
+        localStorage.setItem('thuban_user', JSON.stringify(data.user));
+        window.location.href = '/dashboard';
       } else {
-        setError(data.detail || "Credenciales inválidas");
+        setError(data.detail || 'Credenciales inválidas');
       }
     } catch {
-      setError("Error de conexión. Intenta de nuevo.");
+      setError('Error de conexión. Intenta de nuevo.');
     }
     setLoading(false);
   };
@@ -42,51 +47,67 @@ export default function LoginPage() {
       <div className="login-container">
         <div className="login-card">
           <div className="login-header">
-            <Link href="/" className="login-logo"><Star /> Thuban</Link>
+            <div className="login-logo">
+              <svg viewBox="0 0 28 28" fill="none" width="24" height="24" aria-hidden="true">
+                <rect width="28" height="28" rx="8" fill="#f59e0b" />
+                <text x="14" y="20" textAnchor="middle" fontFamily="Inter,sans-serif" fontWeight="700" fontSize="16" fill="#0a0a0f">T</text>
+              </svg>
+              Thuban
+            </div>
             <h1>Iniciar Sesión</h1>
             <p>Bienvenido de nuevo. Ingresa tus credenciales.</p>
           </div>
+
           {error && <div className="login-error">{error}</div>}
+
           <form onSubmit={handleSubmit} className="login-form">
-            <div className="form-group">
-              <label>Correo electrónico</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="tu@correo.com"
-                className="form-input"
-                autoComplete="email"
-              />
-            </div>
-            <div className="form-group">
-              <label>Contraseña</label>
-              <div className="pw-input">
-                <input
-                  type={showPw ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="form-input"
-                  autoComplete="current-password"
-                />
-                <button type="button" className="pw-toggle" onClick={() => setShowPw(!showPw)} tabIndex={-1}>
-                  {showPw ? <EyeOff /> : <Eye />}
-                </button>
-              </div>
-            </div>
+            <Input
+              label="Correo electrónico"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="tu@correo.com"
+              autoComplete="email"
+              disabled={loading}
+              wrapperClassName="gap-1"
+            />
+
+            <Input
+              label="Contraseña"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              autoComplete="current-password"
+              showPasswordToggle
+              disabled={loading}
+              wrapperClassName="gap-1"
+            />
+
             <div className="form-row">
               <label className="checkbox-label">
                 <input type="checkbox" defaultChecked /> Recordarme
               </label>
-              <a href="#" className="forgot-link" onClick={(e) => { e.preventDefault(); setError("Contacta a soporte para restablecer tu contraseña."); }}>
+              <a
+                href="#"
+                className="forgot-link"
+                onClick={(e) => { e.preventDefault(); setError('Contacta a soporte para restablecer tu contraseña.'); }}
+              >
                 ¿Olvidaste tu contraseña?
               </a>
             </div>
-            <button type="submit" className="btn-primary btn-full" disabled={loading}>
-              {loading ? <><Loader2 className="spin" /> Iniciando sesión...</> : "Iniciar Sesión"}
-            </button>
+
+            <Button
+              type="submit"
+              variant="primary"
+              size="full"
+              loading={loading}
+              disabled={loading}
+            >
+              Iniciar Sesión
+            </Button>
           </form>
+
           <div className="login-footer">
             ¿No tienes cuenta? <Link href="/signup">Regístrate</Link>
           </div>

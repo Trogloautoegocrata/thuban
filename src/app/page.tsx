@@ -3,6 +3,7 @@
 import { Star, Sparkles, Menu, X, Send, Loader2, Check } from "lucide-react";
 import { APP_CONFIG } from "@/lib/config";
 import { useState, useEffect, useRef } from "react";
+import { Button, SectionHeading } from "@/components/ui";
 
 /* ─── Icons inline (para las features) ─── */
 function CameraIcon() { return <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-2l-2-2H9L7 7H5a2 2 0 00-2 2z"/><circle cx="12" cy="13" r="3"/></svg>; }
@@ -82,8 +83,8 @@ function Hero() {
         <h1 className="reveal" style={{ transitionDelay: "0.1s" }}>Inteligencia Artificial para <span className="gold">Bienes Raíces</span></h1>
         <p className="reveal" style={{ transitionDelay: "0.2s" }}>Potencia tu negocio inmobiliario con IA especializada. Genera descripciones, analiza mercados, mejora tus negociaciones y atiende clientes como nunca antes.</p>
         <div className="hero-buttons reveal" style={{ transitionDelay: "0.3s" }}>
-          <a href="/signup" className="btn btn-primary">Comenzar Gratis</a>
-          <a href="/login" className="btn btn-secondary">Iniciar Sesión</a>
+          <Button href="/signup" variant="primary" size="lg">Comenzar Gratis</Button>
+          <Button href="/login" variant="secondary" size="lg">Iniciar Sesión</Button>
         </div>
         <p className="hero-note reveal" style={{ transitionDelay: "0.4s" }}>5 créditos gratis al registrarte</p>
       </div>
@@ -102,11 +103,12 @@ function Features() {
   return (
     <section id="features" data-od-id="features-section">
       <div className="container">
-        <div className="text-center mb-4">
-          <p className="section-label reveal">Funciones</p>
-          <h2 className="section-title reveal" style={{ transitionDelay: "0.1s" }}>4 herramientas, un solo asistente</h2>
-          <p className="section-subtitle mx-auto reveal" style={{ transitionDelay: "0.15s" }}>Todo lo que necesitas para destacar en el mercado inmobiliario mexicano y latinoamericano.</p>
-        </div>
+        <SectionHeading
+          label="Funciones"
+          title="4 herramientas, un solo asistente"
+          subtitle="Todo lo que necesitas para destacar en el mercado inmobiliario mexicano y latinoamericano."
+          className="mb-4"
+        />
         <div className="features-grid">
           {features.map((f, i) => (
             <article key={i} className="feature-card reveal" style={{ transitionDelay: `${0.1 + i * 0.1}s` }}>
@@ -125,10 +127,11 @@ function Stats() {
   return (
     <section data-od-id="stats-section">
       <div className="container-narrow">
-        <div className="text-center mb-4">
-          <p className="section-label reveal">Datos en tiempo real</p>
-          <h2 className="section-title reveal" style={{ transitionDelay: "0.1s" }}>El poder de BACKBONE</h2>
-        </div>
+        <SectionHeading
+          label="Datos en tiempo real"
+          title="El poder de BACKBONE"
+          className="mb-4"
+        />
         <div className="stats-grid">
           <div className="stat-card reveal" style={{ transitionDelay: "0.15s" }}>
             <p className="stat-number">101,971+</p>
@@ -182,11 +185,11 @@ function ChatDemo() {
   return (
     <section data-od-id="chat-demo-section">
       <div className="container-narrow">
-        <div className="text-center mb-4">
-          <p className="section-label reveal">Prueba el chat</p>
-          <h2 className="section-title reveal" style={{ transitionDelay: "0.1s" }}>Conversa con Thuban</h2>
-          <p className="section-subtitle mx-auto reveal" style={{ transitionDelay: "0.15s" }}>Así de fácil es obtener respuestas sobre el mercado inmobiliario.</p>
-        </div>
+        <SectionHeading
+          label="Prueba el chat"
+          title="Conversa con Thuban"
+          subtitle="Así de fácil es obtener respuestas sobre el mercado inmobiliario."
+        />
         <div className="chat-demo reveal" style={{ transitionDelay: "0.2s" }}>
           <div className="chat-window" data-od-id="chat-demo-window">
             <div className="chat-header">
@@ -282,11 +285,11 @@ function Pricing() {
   return (
     <section id="precios" data-od-id="pricing-section">
       <div className="container">
-        <div className="text-center mb-4">
-          <p className="section-label reveal">Planes</p>
-          <h2 className="section-title reveal" style={{ transitionDelay: "0.1s" }}>Elige tu plan</h2>
-          <p className="section-subtitle mx-auto reveal" style={{ transitionDelay: "0.15s" }}>Empieza gratis. Escala cuando lo necesites.</p>
-        </div>
+        <SectionHeading
+          label="Planes"
+          title="Elige tu plan"
+          subtitle="Empieza gratis. Escala cuando lo necesites."
+        />
         <div className="pricing-grid">
           {PLANS.map((plan, i) => (
             <div key={i} className={`pricing-card reveal${plan.featured ? " featured" : ""}`} style={{ transitionDelay: `${0.1 + i * 0.1}s` }}>
@@ -301,7 +304,7 @@ function Pricing() {
                   </li>
                 ))}
               </ul>
-              <a href={plan.href} className={`btn ${plan.primary ? "btn-primary" : "btn-secondary"}`} style={{ width: "100%", textAlign: "center" }}>{plan.cta}</a>
+              <Button href={plan.href} variant={plan.primary ? 'primary' : 'secondary'} size="full">{plan.cta}</Button>
             </div>
           ))}
         </div>
@@ -314,9 +317,11 @@ function Cta() {
   return (
     <section className="cta-section" data-od-id="cta-final-section">
       <div className="container-narrow reveal">
-        <h2 className="section-title">¿Listo para transformar tu negocio inmobiliario?</h2>
-        <p className="section-subtitle mx-auto">Únete a los profesionales que ya usan Thuban para potenciar sus resultados.</p>
-        <a href="/signup" className="btn btn-primary" style={{ marginTop: "1rem" }}>Empieza Gratis</a>
+        <SectionHeading
+          title="¿Listo para transformar tu negocio inmobiliario?"
+          subtitle="Únete a los profesionales que ya usan Thuban para potenciar sus resultados."
+        />
+        <Button href="/signup" variant="primary" size="lg">Empieza Gratis</Button>
       </div>
     </section>
   );

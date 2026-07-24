@@ -19,17 +19,17 @@ export default function FeatureCard({
   icon: Icon,
   title,
   description,
-  accentColor = "rgba(245,158,11,0.1)",
+  accentColor = 'rgba(245,158,11,0.1)',
   className,
 }: FeatureCardProps) {
   return (
     <div
       className={cn(
-        "group relative rounded-xl p-6 md:p-7 transition-all duration-300",
-        "bg-gradient-to-br from-[#111114]/85 to-[#16161a]/50",
-        "backdrop-blur-xl border border-white/[0.06]",
-        "hover:-translate-y-1 hover:border-[#f59e0b]/20",
-        "hover:shadow-[0_8px_32px_rgba(0,0,0,0.3)]",
+        'group relative rounded-xl p-6 md:p-7 transition-all duration-300',
+        'bg-gradient-to-br from-[var(--color-card)]/85 to-[#16161a]/50',
+        'backdrop-blur-xl border border-[var(--color-border)]',
+        'hover:-translate-y-1 hover:border-[var(--color-gold)]/20',
+        'hover:shadow-[0_8px_32px_rgba(0,0,0,0.3)]',
         className
       )}
     >
@@ -46,16 +46,16 @@ export default function FeatureCard({
         className="inline-flex items-center justify-center w-12 h-12 rounded-xl mb-4 transition-all duration-300 group-hover:scale-105"
         style={{ background: accentColor }}
       >
-        <Icon className="h-6 w-6" style={{ color: accentColor === "rgba(245,158,11,0.1)" ? "#f59e0b" : "#759ce7" }} />
+        <Icon className="h-6 w-6" style={{ color: accentColor === 'rgba(245,158,11,0.1)' ? 'var(--color-gold)' : 'var(--color-blue)' }} />
       </div>
 
       {/* Title */}
-      <h3 className="font-sans text-lg md:text-xl font-semibold text-white mb-2">
+      <h3 className="font-sans text-lg md:text-xl font-semibold text-[var(--color-fg)] mb-2">
         {title}
       </h3>
 
       {/* Description */}
-      <p className="text-sm text-[#9898a8] leading-relaxed">
+      <p className="text-sm text-[var(--color-muted)] leading-relaxed">
         {description}
       </p>
     </div>

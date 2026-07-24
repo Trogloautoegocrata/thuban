@@ -31,25 +31,25 @@ export default function MetricCard({
   return (
     <div
       className={cn(
-        "relative rounded-xl p-5 md:p-6 transition-all duration-250",
-        "bg-gradient-to-br from-[#111114]/90 to-[#16161a]/60",
-        "border border-[#1c1c24]",
-        "hover:border-[#759ce7]/20 hover:shadow-[0_4px_20px_rgba(117,156,231,0.06)]",
+        'relative rounded-xl p-5 md:p-6 transition-all duration-250',
+        'bg-gradient-to-br from-[var(--color-card)]/90 to-[#16161a]/60',
+        'border border-[var(--color-border)]',
+        'hover:border-[var(--color-blue)]/20 hover:shadow-[0_4px_20px_rgba(117,156,231,0.06)]',
         className
       )}
     >
       {/* Top row: icon + optional trend */}
       <div className="flex items-start justify-between mb-3">
-        <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-[#759ce7]/10">
-          <Icon className="h-5 w-5 text-[#759ce7]" />
+        <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-[var(--color-blue)]/10">
+          <Icon className="h-5 w-5 text-[var(--color-blue)]" />
         </div>
         {trend !== undefined && (
           <div
             className={cn(
-              "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium",
+              'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium',
               isPositive
-                ? "bg-[#34d399]/10 text-[#34d399]"
-                : "bg-[#f87171]/10 text-[#f87171]"
+                ? 'bg-[var(--color-green)]/10 text-[var(--color-green)]'
+                : 'bg-[var(--color-red)]/10 text-[var(--color-red)]'
             )}
           >
             {isPositive ? (
@@ -63,16 +63,16 @@ export default function MetricCard({
       </div>
 
       {/* Value */}
-      <div className="font-sans text-2xl md:text-3xl font-bold text-white tracking-tight mb-0.5">
+      <div className="font-sans text-2xl md:text-3xl font-bold text-[var(--color-fg)] tracking-tight mb-0.5">
         {value}
       </div>
 
       {/* Label */}
-      <div className="text-sm text-[#9898a8]">{label}</div>
+      <div className="text-sm text-[var(--color-muted)]">{label}</div>
 
       {/* Optional trend label */}
       {trendLabel && (
-        <div className="text-xs text-[#5c5c6e] mt-1">{trendLabel}</div>
+        <div className="text-xs text-[var(--color-muted-2)] mt-1">{trendLabel}</div>
       )}
     </div>
   );

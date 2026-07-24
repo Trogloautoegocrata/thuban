@@ -24,6 +24,20 @@ Capa 4 — Ecosistema:    BACKBONE · GHL(futuro) · WhatsApp(futuro) · PADIM(s
 Capa 5 — Infra:         Vercel · Cloudflare · Stripe · PostgreSQL(futuro)
 ```
 
+## Documentos del Proyecto
+
+| Documento | Propósito |
+|-----------|-----------|
+| `DESIGN.md` | 🎨 Design system completo — tokens, componentes, layout, do's/don'ts |
+| `PRODUCT.md` | 🎯 Verdad del producto — usuarios, propósito, positioning, principios |
+| `ADR-015-THUBAN-5-CAPAS.md` | 🏗️ Arquitectura de 5 capas |
+| `CLAUDE.md` (este) | 🛠️ Operación y estructura |
+| `AGENTS.md` | 📋 Stack y estructura inicial |
+| `ROADMAP.md` | 🗺️ Plan de escalabilidad |
+| `PLAN-IMPECCABLE.md` | 🎨 Plan de adopción Impeccable |
+| `.github/workflows/impeccable-detect.yml` | 🔍 Impeccable Design Check en PRs (modo warning) |
+| `.github/workflows/nextjs-build.yml` | 🏗️ Build + TypeScript check en PRs |
+
 ## Estado Actual (Jul 2026)
 
 | Feature | Status | Notas |
