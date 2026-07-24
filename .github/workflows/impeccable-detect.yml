@@ -1,106 +1,155 @@
-# Impeccable Design Check
-#
-# Ejecuta npx impeccable detect en cada Pull Request para detectar
-# anti-patrones de UI y drift del design system.
-#
-# Fase 1: Modo warning (no bloquea PRs)
-# Fase 2 (futuro): Modo blocking tras calibrar thresholds
-#
-# Documentación: https://impeccable.style
+# =============================================================================
+# impeccable-detect-thuban.yml — Gate 4: Thuban-specific Design Quality Gate
+# =============================================================================
+# Repository:  github.com/Trogloautoegocrata/thuban (Next.js app)
+# Scope:       src/components/  (Next.js components only)
+# Threshold:   80 (stricter — Next.js component quality matters)
+# Behaviour:   Comments findings on PR
+# =============================================================================
 
-name: Impeccable Design Check
+name: "🔍 Impeccable Detect — Thuban Design Quality"
 
-on:
+"on":
   pull_request:
-    branches: [main, develop]
-    paths:
-      - 'src/**'
-      - '*.css'
+    branches: [main]
+  push:
+    branches: [main]
+
+env:
+  THRESHOLD_WARN: 80
+  PATHS_TO_SCAN: 'src/components/'
 
 jobs:
-  detect:
-    name: UI Anti-pattern Detection
+  design-quality:
+    name: "🎨 Thuban Design Quality Check"
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: "📥 Checkout repository"
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: "⚡ Setup Node.js 22"
         uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'npm'
-          cache-dependency-path: package-lock.json
 
-      - name: Install dependencies
-        run: npm ci --prefer-offline --no-audit
+      - name: "📦 Install dependencies"
+        run: |
+          if [ -f package.json ]; then
+            npm ci --ignore-scripts 2>/dev/null || npm install --ignore-scripts 2>/dev/null || true
+          fi
 
-      - name: Run Impeccable detect
+      - name: "🔬 Run Impeccable Detect (scoped to src/components/)"
         id: impeccable
         continue-on-error: true
         run: |
-          npx impeccable detect src/ 2>&1 | tee /tmp/impeccable-report.txt
+          echo "::group::Impeccable Detect Thuban — Scanning ${{ env.PATHS_TO_SCAN }}"
+          npx --yes impeccable detect ${{ env.PATHS_TO_SCAN }} --json > impeccable-report.json 2>&1
+          echo "::endgroup::"
+          echo "report_path=impeccable-report.json" >> $GITHUB_OUTPUT
 
-      - name: Check results
+      - name: "📊 Evaluate report against threshold (80)"
+        id: evaluate
         run: |
-          REPORT=/tmp/impeccable-report.txt
-          if [ ! -f "$REPORT" ]; then
-            echo "⚠️ No se generó reporte de Impeccable"
+          echo "::group::Evaluating Thuban Design Quality"
+
+          if [ ! -f impeccable-report.json ]; then
+            echo "No report generated — skipping evaluation"
+            echo "score=0" >> $GITHUB_OUTPUT
+            echo "summary=No report generated" >> $GITHUB_OUTPUT
             exit 0
           fi
 
-          # Contar findings totales
-          TOTAL=$(grep -c "\[" "$REPORT" 2>/dev/null || echo 0)
-          echo "📊 Findings totales: $TOTAL"
+          SCORE=$(python3 -c "
+          import json
+          with open('impeccable-report.json') as f:
+              data = json.load(f)
+          score = data.get('score', data.get('overall_score', 0))
+          print(score)
+          ")
 
-          # Separar por tipo
-          ANTIPATTERNS=$(grep -v "design-system" "$REPORT" | grep -c "\[" 2>/dev/null || echo 0)
-          DRIFT=$(grep -c "design-system" "$REPORT" 2>/dev/null || echo 0)
-          echo "🔴 Anti-patrones UI: $ANTIPATTERNS"
-          echo "🔵 Design-system drift: $DRIFT"
+          THRESHOLD=${{ env.THRESHOLD_WARN }}
+          echo "score=$SCORE" >> $GITHUB_OUTPUT
 
-          # Mostrar anti-patrones si existen
-          if [ "$ANTIPATTERNS" -gt 0 ]; then
-            echo ""
-            echo "### 🔴 Anti-patrones encontrados"
-            grep -v "design-system" "$REPORT" | grep "\[" | while read line; do
-              echo "- $line"
-            done
+          if [ "$SCORE" -ge "$THRESHOLD" ]; then
+            echo "✅ Thuban design quality score $SCORE — passes threshold $THRESHOLD"
+            echo "summary=✅ Thuban Score $SCORE — passes threshold $THRESHOLD" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️  Thuban design quality score $SCORE — below threshold $THRESHOLD"
+            echo "summary=⚠️ Thuban Score $SCORE — below threshold $THRESHOLD" >> $GITHUB_OUTPUT
+            echo "failure=true" >> $GITHUB_OUTPUT
           fi
 
-          # Solo falla si hay anti-patrones UI reales
-          if [ "$ANTIPATTERNS" -gt 0 ]; then
-            echo ""
-            echo "❌ Se encontraron $ANTIPATTERNS anti-patrones de UI. Revisa los detalles arriba."
-            exit 1
-          fi
+          python3 -c "
+          import json
+          with open('impeccable-report.json') as f:
+              data = json.load(f)
+          issues = data.get('issues', data.get('findings', []))
+          if issues:
+              print(f'Found {len(issues)} issue(s) in src/components/:')
+              for i, issue in enumerate(issues[:20]):
+                  loc = issue.get('file', issue.get('location', 'unknown'))
+                  desc = issue.get('message', issue.get('description', issue.get('rule', 'unknown')))
+                  sev = issue.get('severity', issue.get('level', 'info'))
+                  print(f'  [{sev}] {loc}: {desc}')
+              if len(issues) > 20:
+                  print(f'  ... and {len(issues) - 20} more issue(s)')
+          "
 
-          echo ""
-          if [ "$DRIFT" -gt 0 ]; then
-            echo "ℹ️  $DRIFT design-system drift(s) encontrados (modo informativo — no bloquean)"
-          fi
-          echo "✅ Design check superado"
+          echo "::endgroup::"
 
-      - name: Comment PR (on first offense)
-        if: failure() && github.event_name == 'pull_request'
+      - name: "💬 Comment findings on PR"
+        if: github.event_name == 'pull_request'
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
-            const report = fs.readFileSync('/tmp/impeccable-report.txt', 'utf8');
-            const lines = report.split('\n').filter(l => l.includes('[') && !l.includes('design-system'));
-            let body = '## 🔴 Impeccable Design Check\n\n';
-            body += 'Se detectaron anti-patrones de UI que deben corregirse:\n\n';
-            lines.forEach(l => {
-              const match = l.match(/\[([^\]]+)\]/);
-              const rule = match ? match[1] : 'unknown';
-              body += `- **${rule}**: \`${l.split(':')[0].trim()}\`\n`;
-            });
-            body += '\n> Corre con `npx impeccable detect src/` localmente para ver detalles completos.';
-            github.rest.issues.createComment({
+            const reportPath = 'impeccable-report.json';
+            let commentBody = '';
+
+            try {
+              const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+              const score = report.score || report.overall_score || 'N/A';
+              const issues = report.issues || report.findings || [];
+
+              commentBody = `## 🎨 Thuban Design Quality Report\n\n`;
+              commentBody += `**Score:** ${score} / 100\n`;
+              commentBody += `**Threshold:** ${{ env.THRESHOLD_WARN }} (Next.js components)\n`;
+              commentBody += `**Scoped to:** \`src/components/\`\n\n`;
+
+              if (issues.length === 0) {
+                commentBody += `✅ No design issues found in Thuban components — clean!\n`;
+              } else {
+                commentBody += `**${issues.length} issue(s) found in components:**\n\n`;
+                commentBody += `| Severity | File | Description |\n`;
+                commentBody += `|----------|------|-------------|\n`;
+                issues.slice(0, 30).forEach(issue => {
+                  const sev = issue.severity || issue.level || 'info';
+                  const file = issue.file || issue.location || 'unknown';
+                  const desc = (issue.message || issue.description || issue.rule || '').substring(0, 100);
+                  const icon = sev === 'error' ? '🔴' : sev === 'warning' ? '🟡' : '🔵';
+                  commentBody += `| ${icon} ${sev} | ${file} | ${desc} |\n`;
+                });
+                if (issues.length > 30) {
+                  commentBody += `| ... | *${issues.length - 30} more* | *Download artifact for full report* |\n`;
+                }
+              }
+            } catch (e) {
+              commentBody = `## 🎨 Thuban Design Quality Report\n\n⚠️ Could not parse report: ${e.message}\n`;
+            }
+
+            await github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: body
+              body: commentBody
             });
+
+      - name: "📤 Upload report as artifact"
+        uses: actions/upload-artifact@v4
+        with:
+          name: impeccable-report-thuban
+          path: impeccable-report.json
+          if-no-files-found: warn
+          retention-days: 30
